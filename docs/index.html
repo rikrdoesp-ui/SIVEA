@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-l8/xU8l2XyW1uvtpOPMyOfuY8yEXWeGqVv+aUYbIFkk=' 'sha256-r7i+S90b4sDH2KPW/AQ18fYWn+m03xueFHKfVjuOlWk=' 'sha256-3BJdgZW1nFmSnohB7VGz+vu1dLTnvG7Pj+lWNoFWICg=' 'sha256-fHgLOD7XOn+ezOmhkBbaEprFgCpiHaHWcy3sL97defQ=' 'sha256-h8olRnf079urmQFJE6yswPZGSMBwxvtk8bKbzLt6cUE=' 'sha256-WCKzQV4sDQH8ggU2joEuxH3wZKF3Z7GY8imdtAigCRQ=' 'sha256-wAl2Xz42Txud6BXgsaduCeW3eMBVyqEePwqIoZMjTNo=' 'sha256-JZp76qKDhIe9NUnlPEkIWUk5ucl6b5NBkyU1Q65VeGw=' 'sha256-hE4moqp0lnCnJjQzYEzQe98meYboO/hB4oD5wj6glS8=' 'sha256-ktulVMoTCzqYxcA2Jt7Pi9EGj4k1oliw9CyHPhaZSH8=' 'sha256-n4TH4cxS2hi6z/87SAZ1x47531dpni5gE79gyMv9erE=' 'sha256-3N2/VfOVEqnsQt7OF4I912ZxV9GcIX3TPioukkMdkis=' 'sha256-XvFcrOhQkXes0Yr68jbke+I437YVFmiMHsmwzC261tI=' blob: 'wasm-unsafe-eval'; style-src 'unsafe-inline'; img-src 'self' data: blob:; font-src data: blob:; worker-src 'self' blob:; manifest-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-l8/xU8l2XyW1uvtpOPMyOfuY8yEXWeGqVv+aUYbIFkk=' 'sha256-r7i+S90b4sDH2KPW/AQ18fYWn+m03xueFHKfVjuOlWk=' 'sha256-3BJdgZW1nFmSnohB7VGz+vu1dLTnvG7Pj+lWNoFWICg=' 'sha256-fHgLOD7XOn+ezOmhkBbaEprFgCpiHaHWcy3sL97defQ=' 'sha256-uus3fMts1toQ3h1Mf6Vz1QuQaSaF3A+2pGi5jOsrBpM=' 'sha256-WCKzQV4sDQH8ggU2joEuxH3wZKF3Z7GY8imdtAigCRQ=' 'sha256-wAl2Xz42Txud6BXgsaduCeW3eMBVyqEePwqIoZMjTNo=' 'sha256-JZp76qKDhIe9NUnlPEkIWUk5ucl6b5NBkyU1Q65VeGw=' 'sha256-hE4moqp0lnCnJjQzYEzQe98meYboO/hB4oD5wj6glS8=' 'sha256-ktulVMoTCzqYxcA2Jt7Pi9EGj4k1oliw9CyHPhaZSH8=' 'sha256-n4TH4cxS2hi6z/87SAZ1x47531dpni5gE79gyMv9erE=' 'sha256-XgcOJbwuHkMj5+k6ccfx+qH3gBtBdrowtNMVxXAP1p8=' 'sha256-XvFcrOhQkXes0Yr68jbke+I437YVFmiMHsmwzC261tI=' blob: 'wasm-unsafe-eval'; style-src 'unsafe-inline'; img-src 'self' data: blob:; font-src data: blob:; worker-src 'self' blob:; manifest-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <title>SIVEA · Sistema Inteligente de Verificación Ambiental</title>
 <meta name="description" content="Revisión de informes semestrales de seguimiento ambiental y generación de la lista de verificación.">
 <meta name="theme-color" content="#0b2140">
@@ -205,6 +205,8 @@
   #vp-estado { flex: 1; min-width: 0; color: var(--suave); }
   .cabeza-vista button { background: var(--papel); color: var(--tinta); border: 1px solid var(--etiqueta); border-radius: 6px; padding: 6px 12px; white-space: nowrap; }
   .cabeza-vista button:hover { background: var(--boton-hover); }
+  .vp-nombre { color: var(--suave); }
+  #vp-nombre { width: min(300px, 32vw); border: 1px solid var(--etiqueta); border-radius: 6px; padding: 5px 8px; background: var(--papel); }
   #vp-descargar { background: var(--acento); color: #fff; border-color: var(--acento); font-weight: 600; }
   #vp-descargar:hover { background: var(--acento-hover); }
   .cabeza-vista :focus-visible { outline: 2px solid var(--marino); outline-offset: 2px; }
@@ -382,6 +384,8 @@
   <div class="cabeza-vista">
     <strong>Vista previa</strong>
     <span id="vp-estado"></span>
+    <label class="vp-nombre" for="vp-nombre">Archivo</label>
+    <input id="vp-nombre" maxlength="150" spellcheck="false">
     <button id="vp-volver" type="button">Volver a la ficha</button>
     <button id="vp-descargar" type="button">Descargar PDF</button>
   </div>
@@ -1133,6 +1137,34 @@ const FichaMensual = (() => {
     return m && Number(m[2]) >= 1 && Number(m[2]) <= 12 ? `Mensual ${MESES[Number(m[2]) - 1]}-${m[3].slice(2)}` : '';
   }
 
+  /** Nombre corto del proyecto: la última palabra ("…DEL RÍO MATASNILLO" → "Matasnillo"). */
+  function proyectoCorto(proyecto) {
+    const ultima = String(proyecto || '').split(/[^\p{L}\p{N}]+/u).filter(Boolean).pop() || '';
+    return ultima ? ultima[0].toUpperCase() + ultima.slice(1).toLowerCase() : '';
+  }
+
+  /**
+   * Nombre del PDF entregado: "LVS del EsIA Matasnillo.pdf" (semestrales) o
+   * "LVM Matasnillo 07-26.pdf" (mensual: mes del comentario "Mensual JULIO-26" o, si no, de la fecha).
+   */
+  function nombreDeArchivo({ mensual, proyecto, comentario, fecha }) {
+    const corto = proyectoCorto(proyecto) || 'Proyecto';
+    if (!mensual) return `LVS del EsIA ${corto}.pdf`;
+    const c = /(\p{L}+)-(\d{2})\s*$/u.exec(comentario || '');
+    const i = c ? MESES.indexOf(c[1].toUpperCase()) : -1;
+    let mes = i >= 0 ? `${String(i + 1).padStart(2, '0')}-${c[2]}` : '';
+    const f = /^(\d{1,2})\/(\d{1,2})\/\d{2}(\d{2})$/.exec(fecha || '');
+    if (!mes && f) mes = `${f[2].padStart(2, '0')}-${f[3]}`;
+    return `LVM ${corto}${mes ? ` ${mes}` : ''}.pdf`;
+  }
+
+  /** Lo que el revisor escriba como nombre, sin caracteres que Windows no admite y con ".pdf". */
+  function nombreSeguro(nombre, respaldo) {
+    const limpio = String(nombre || '').replace(/[\\/:*?"<>|\u0000-\u001f]/g, '').replace(/\s+/g, ' ').trim().replace(/[. ]+$/, '');
+    if (!limpio.replace(/\.pdf$/i, '')) return respaldo;
+    return /\.pdf$/i.test(limpio) ? limpio : `${limpio}.pdf`;
+  }
+
   /** Valida los datos, que pueden venir de un respaldo importado, y deja solo lo conocido. */
   function prepararDatos(catalogo, datos) {
     if (datos === null || typeof datos !== 'object') throw new Error('datos: se esperaba un objeto con la ficha');
@@ -1428,7 +1460,7 @@ const FichaMensual = (() => {
     return doc;
   }
 
-  return { generar, comentarioDeFecha };
+  return { generar, comentarioDeFecha, nombreDeArchivo, nombreSeguro };
 })();
 
 if (typeof module !== 'undefined') module.exports = FichaMensual;
@@ -3173,7 +3205,7 @@ const Mosaico = (() => {
     const url = URL.createObjectURL(doc.output('blob'));
     const enlace = crear('a');
     enlace.href = url;
-    enlace.download = `${mensual ? 'LV Mensual' : 'LV Semestral'} - ${nombreArchivo.replace(/\.pdf$/i, '') || 'borrador'}.pdf`;
+    enlace.download = FichaMensual.nombreSeguro($('vp-nombre').value, nombrePropuesto());
     enlace.click();
     setTimeout(() => URL.revokeObjectURL(url), 10000);
   }
@@ -3192,7 +3224,11 @@ const Mosaico = (() => {
     }
   }
 
+  // "LVS del EsIA Matasnillo.pdf" o "LVM Matasnillo 07-26.pdf"; el revisor lo puede corregir en la vista previa.
+  const nombrePropuesto = () => FichaMensual.nombreDeArchivo({ mensual, ...ficha.datos });
+
   function mostrarVistaPrevia(doc) {
+    $('vp-nombre').value = nombrePropuesto();
     const faltan = ids.filter((id) => !respuesta(id).estado).length + (mensual && ficha.porcentajeC === '' ? 1 : 0);
     const hojas = doc.getNumberOfPages();
     const resumen = `${hojas === 1 ? '1 hoja' : `${hojas} hojas`}${faltan ? `, ${faltan} filas sin responder` : ''}.`;

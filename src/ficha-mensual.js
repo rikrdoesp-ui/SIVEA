@@ -27,6 +27,34 @@ const FichaMensual = (() => {
     return m && Number(m[2]) >= 1 && Number(m[2]) <= 12 ? `Mensual ${MESES[Number(m[2]) - 1]}-${m[3].slice(2)}` : '';
   }
 
+  /** Nombre corto del proyecto: la última palabra ("…DEL RÍO MATASNILLO" → "Matasnillo"). */
+  function proyectoCorto(proyecto) {
+    const ultima = String(proyecto || '').split(/[^\p{L}\p{N}]+/u).filter(Boolean).pop() || '';
+    return ultima ? ultima[0].toUpperCase() + ultima.slice(1).toLowerCase() : '';
+  }
+
+  /**
+   * Nombre del PDF entregado: "LVS del EsIA Matasnillo.pdf" (semestrales) o
+   * "LVM Matasnillo 07-26.pdf" (mensual: mes del comentario "Mensual JULIO-26" o, si no, de la fecha).
+   */
+  function nombreDeArchivo({ mensual, proyecto, comentario, fecha }) {
+    const corto = proyectoCorto(proyecto) || 'Proyecto';
+    if (!mensual) return `LVS del EsIA ${corto}.pdf`;
+    const c = /(\p{L}+)-(\d{2})\s*$/u.exec(comentario || '');
+    const i = c ? MESES.indexOf(c[1].toUpperCase()) : -1;
+    let mes = i >= 0 ? `${String(i + 1).padStart(2, '0')}-${c[2]}` : '';
+    const f = /^(\d{1,2})\/(\d{1,2})\/\d{2}(\d{2})$/.exec(fecha || '');
+    if (!mes && f) mes = `${f[2].padStart(2, '0')}-${f[3]}`;
+    return `LVM ${corto}${mes ? ` ${mes}` : ''}.pdf`;
+  }
+
+  /** Lo que el revisor escriba como nombre, sin caracteres que Windows no admite y con ".pdf". */
+  function nombreSeguro(nombre, respaldo) {
+    const limpio = String(nombre || '').replace(/[\\/:*?"<>|\u0000-\u001f]/g, '').replace(/\s+/g, ' ').trim().replace(/[. ]+$/, '');
+    if (!limpio.replace(/\.pdf$/i, '')) return respaldo;
+    return /\.pdf$/i.test(limpio) ? limpio : `${limpio}.pdf`;
+  }
+
   /** Valida los datos, que pueden venir de un respaldo importado, y deja solo lo conocido. */
   function prepararDatos(catalogo, datos) {
     if (datos === null || typeof datos !== 'object') throw new Error('datos: se esperaba un objeto con la ficha');
@@ -322,7 +350,7 @@ const FichaMensual = (() => {
     return doc;
   }
 
-  return { generar, comentarioDeFecha };
+  return { generar, comentarioDeFecha, nombreDeArchivo, nombreSeguro };
 })();
 
 if (typeof module !== 'undefined') module.exports = FichaMensual;

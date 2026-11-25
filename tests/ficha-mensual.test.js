@@ -136,3 +136,14 @@ test('el comentario se propone con el mes de la fecha', () => {
   assert.equal(FichaMensual.comentarioDeFecha('22/13/2026'), '');
   assert.equal(FichaMensual.comentarioDeFecha(''), '');
 });
+
+test('nombre del PDF entregado según la lista', () => {
+  const n = FichaMensual.nombreDeArchivo;
+  const proyecto = 'DISEÑO Y CONSTRUCCIÓN DEL COLECTOR PRINCIPAL DEL RÍO MATASNILLO';
+  assert.equal(n({ mensual: false, proyecto }), 'LVS del EsIA Matasnillo.pdf');
+  assert.equal(n({ mensual: true, proyecto: '“Diseño y Construcción del Colector Principal del Río Matasnillo”', comentario: 'Mensual JULIO-26', fecha: '18/11/2026' }), 'LVM Matasnillo 07-26.pdf');
+  assert.equal(n({ mensual: true, proyecto, comentario: '', fecha: '5/3/2026' }), 'LVM Matasnillo 03-26.pdf');
+  assert.equal(n({ mensual: true, proyecto: '', comentario: 'otro' }), 'LVM Proyecto.pdf');
+  assert.equal(FichaMensual.nombreSeguro('LVS del EsIA: Arraiján?', 'x.pdf'), 'LVS del EsIA Arraiján.pdf');
+  assert.equal(FichaMensual.nombreSeguro('  ', 'x.pdf'), 'x.pdf');
+});

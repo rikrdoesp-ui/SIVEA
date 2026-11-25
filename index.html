@@ -205,6 +205,8 @@
   #vp-estado { flex: 1; min-width: 0; color: var(--suave); }
   .cabeza-vista button { background: var(--papel); color: var(--tinta); border: 1px solid var(--etiqueta); border-radius: 6px; padding: 6px 12px; white-space: nowrap; }
   .cabeza-vista button:hover { background: var(--boton-hover); }
+  .vp-nombre { color: var(--suave); }
+  #vp-nombre { width: min(300px, 32vw); border: 1px solid var(--etiqueta); border-radius: 6px; padding: 5px 8px; background: var(--papel); }
   #vp-descargar { background: var(--acento); color: #fff; border-color: var(--acento); font-weight: 600; }
   #vp-descargar:hover { background: var(--acento-hover); }
   .cabeza-vista :focus-visible { outline: 2px solid var(--marino); outline-offset: 2px; }
@@ -382,6 +384,8 @@
   <div class="cabeza-vista">
     <strong>Vista previa</strong>
     <span id="vp-estado"></span>
+    <label class="vp-nombre" for="vp-nombre">Archivo</label>
+    <input id="vp-nombre" maxlength="150" spellcheck="false">
     <button id="vp-volver" type="button">Volver a la ficha</button>
     <button id="vp-descargar" type="button">Descargar PDF</button>
   </div>

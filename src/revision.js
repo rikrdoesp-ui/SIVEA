@@ -767,7 +767,7 @@
     const url = URL.createObjectURL(doc.output('blob'));
     const enlace = crear('a');
     enlace.href = url;
-    enlace.download = `${mensual ? 'LV Mensual' : 'LV Semestral'} - ${nombreArchivo.replace(/\.pdf$/i, '') || 'borrador'}.pdf`;
+    enlace.download = FichaMensual.nombreSeguro($('vp-nombre').value, nombrePropuesto());
     enlace.click();
     setTimeout(() => URL.revokeObjectURL(url), 10000);
   }
@@ -786,7 +786,11 @@
     }
   }
 
+  // "LVS del EsIA Matasnillo.pdf" o "LVM Matasnillo 07-26.pdf"; el revisor lo puede corregir en la vista previa.
+  const nombrePropuesto = () => FichaMensual.nombreDeArchivo({ mensual, ...ficha.datos });
+
   function mostrarVistaPrevia(doc) {
+    $('vp-nombre').value = nombrePropuesto();
     const faltan = ids.filter((id) => !respuesta(id).estado).length + (mensual && ficha.porcentajeC === '' ? 1 : 0);
     const hojas = doc.getNumberOfPages();
     const resumen = `${hojas === 1 ? '1 hoja' : `${hojas} hojas`}${faltan ? `, ${faltan} filas sin responder` : ''}.`;
