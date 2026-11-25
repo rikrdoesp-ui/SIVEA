@@ -74,7 +74,8 @@ for (const icono of ICONOS) {
   fs.copyFileSync(origen, path.join(salida, icono));
 }
 // La versión del trabajador cambia con el contenido: así cada publicación reemplaza la copia guardada.
-const version = crypto.createHash('sha256').update(html).digest('hex').slice(0, 12);
+// También cuenta el manifiesto: un cambio solo en él debe llegar a las apps ya instaladas.
+const version = crypto.createHash('sha256').update(html).update(leer('manifest.webmanifest')).digest('hex').slice(0, 12);
 const sw = leer('sw.js').toString('utf8').replace("const VERSION = 'desarrollo';", `const VERSION = '${version}';`);
 if (!sw.includes(version)) throw new Error('No se pudo poner la versión en sw.js');
 fs.writeFileSync(path.join(salida, 'sw.js'), sw);
