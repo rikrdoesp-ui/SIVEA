@@ -1,0 +1,489 @@
+{
+ "id": "deia-166-2018",
+ "encabezado": {
+  "programa": "Programa Saneamiento de Panamá",
+  "seccion": "Sección SocioAmbiental",
+  "titulo": "Lista de verificación de Informes Semestrales del EsIA Categoría III, titulado “Proyecto Saneamiento Arraiján - La Chorrera, Redes y Colectoras” Resolución DEIA-IA-166-2018",
+  "nota": "Se recomienda seguir el formato de índice de contenido mínimo, según lo establecido en el Anexo 4.14 de la Resolución AG N° 0347-2013 del 20 de junio de 2013,que aprueba el “Manual de Procedimientos, Control y Fiscalización Ambiental”."
+ },
+ "secciones": [
+  {
+   "id": "pma",
+   "titulo": "PROGRAMAS DEL PMA",
+   "columnas": true,
+   "conCodigo": true,
+   "items": [
+    {
+     "id": "pma166-01",
+     "codigo": "10.1.1",
+     "texto": "Plan de limpieza y desarraigue"
+    },
+    {
+     "id": "pma166-02",
+     "codigo": "10.1.2",
+     "texto": "Plan de prevención y mitigación de la contaminación del aire, ruido y vibraciones"
+    },
+    {
+     "id": "pma166-03",
+     "codigo": "10.1.3",
+     "texto": "Plan de control de erosión"
+    },
+    {
+     "id": "pma166-04",
+     "codigo": "10.1.4",
+     "texto": "Plan de prevención de la contaminación del suelo"
+    },
+    {
+     "id": "pma166-05",
+     "codigo": "10.1.5",
+     "texto": "Plan de revegetación y reforestación"
+    },
+    {
+     "id": "pma166-06",
+     "codigo": "10.1.6",
+     "texto": "Plan de manejo de casetas, campamentos e instalaciones provisionales"
+    },
+    {
+     "id": "pma166-07",
+     "codigo": "10.1.7",
+     "texto": "Plan de manejo y disposición de desechos"
+    },
+    {
+     "id": "pma166-08",
+     "codigo": "10.1.8",
+     "texto": "Plan de manejo de escombros y áridos procedentes de excavaciones"
+    },
+    {
+     "id": "pma166-09",
+     "codigo": "10.1.9",
+     "texto": "Programa de control de criaderos de patógenos y vectores sanitarios"
+    },
+    {
+     "id": "pma166-10",
+     "codigo": "10.1.10",
+     "texto": "Plan de manejo de obras en cauce"
+    },
+    {
+     "id": "pma166-11",
+     "codigo": "10.1.11",
+     "texto": "Plan de prevención de afectaciones a los recursos dulce-acuícolas"
+    },
+    {
+     "id": "pma166-12",
+     "codigo": "10.1.12",
+     "texto": "Plan de manejo de concretos"
+    },
+    {
+     "id": "pma166-13",
+     "codigo": "10.1.13",
+     "texto": "Plan de manejo de maquinaria y equipo"
+    },
+    {
+     "id": "pma166-14",
+     "codigo": "10.1.14",
+     "texto": "Plan de manejo del tránsito vehicular"
+    },
+    {
+     "id": "pma166-15",
+     "codigo": "10.1.15",
+     "texto": "Plan de interrupción de los servicios públicos afectados"
+    },
+    {
+     "id": "pma166-16",
+     "codigo": "10.1.16",
+     "texto": "Plan de manejo de afectaciones privaciones"
+    },
+    {
+     "id": "pma166-17",
+     "codigo": "10.1.17",
+     "texto": "Plan de demolición y reparación de áreas pavimentadas"
+    },
+    {
+     "id": "pma166-18",
+     "codigo": "10.1.18",
+     "texto": "Programa de atención de quejas y reclamaciones"
+    },
+    {
+     "id": "pma166-19",
+     "codigo": "10.1.19",
+     "texto": "Plan de comunicación y divulgación"
+    },
+    {
+     "id": "pma166-20",
+     "codigo": "10.1.20",
+     "texto": "Plan de contratación de mano de obra local"
+    },
+    {
+     "id": "pma166-21",
+     "codigo": "10.1.21",
+     "texto": "Plan de seguridad, salud e higiene ocupacional"
+    },
+    {
+     "id": "pma166-22",
+     "codigo": "10.1.22",
+     "texto": "Plan de protección al patrimonio arqueológico y cultural"
+    },
+    {
+     "id": "pma166-23",
+     "codigo": "10.1.23",
+     "texto": "Plan de limpieza y clausura de letrinas, PTAR comunitarias, tanques sépticos e Imhoff"
+    },
+    {
+     "id": "pma166-24",
+     "codigo": "10.1.24",
+     "texto": "Plan de limpieza y puesta en funcionamiento tanques sépticos e Imhoff"
+    },
+    {
+     "id": "pma166-25",
+     "codigo": "10.1.25",
+     "texto": "Plan de manejo del paisaje"
+    },
+    {
+     "id": "pma166-26",
+     "codigo": "10.1.26",
+     "texto": "Plan de prevención de desbordamiento en las estaciones de Bombeo"
+    },
+    {
+     "id": "pma166-27",
+     "codigo": "10.1.27",
+     "texto": "Programa de obtención de permisos"
+    },
+    {
+     "id": "pma166-28",
+     "codigo": "10.2",
+     "texto": "Monitoreo"
+    },
+    {
+     "id": "pma166-29",
+     "codigo": "10.3",
+     "texto": "Cronograma de ejecución"
+    },
+    {
+     "id": "pma166-30",
+     "codigo": "10.4",
+     "texto": "Plan de participación ciudadana"
+    },
+    {
+     "id": "pma166-31",
+     "codigo": "10.5",
+     "texto": "Plan de prevención de riesgos"
+    },
+    {
+     "id": "pma166-32",
+     "codigo": "10.6",
+     "texto": "Plan de rescate y reubicación de fauna y flora"
+    },
+    {
+     "id": "pma166-33",
+     "codigo": "10.7",
+     "texto": "Plan de educación ambiental"
+    },
+    {
+     "id": "pma166-34",
+     "codigo": "10.8",
+     "texto": "Plan de contingencia"
+    },
+    {
+     "id": "pma166-35",
+     "codigo": "10.9",
+     "texto": "Plan de recuperación ambiental y de abandono"
+    },
+    {
+     "id": "pma166-36",
+     "codigo": "10.10",
+     "texto": "Costo de la gestión ambiental"
+    }
+   ]
+  },
+  {
+   "id": "res",
+   "titulo": "CUMPLIMIENTO DE LA RESOLUCIÓN DEL ESTUDIO DE IMPACTO AMBIENTAL - DEIA-IA-166-2018",
+   "columnas": true,
+   "conCodigo": true,
+   "items": [
+    {
+     "id": "res166-01",
+     "codigo": "art.3",
+     "texto": "Cumplimiento de las normas legales y reglamentarias aplicables"
+    },
+    {
+     "id": "res166-02",
+     "codigo": "art.4 (a)",
+     "texto": "Colocar antes de iniciar la ejecución del proyecto un letrero según formato indicado (verde)"
+    },
+    {
+     "id": "res166-03",
+     "codigo": "art.4 (b)",
+     "texto": "Reparaciones de las vías o áreas de servidumbre pública afectadas por los trabajos"
+    },
+    {
+     "id": "res166-04",
+     "codigo": "art.4 (c)",
+     "texto": "Aprobación de los planos de obra por el departamento de EyD del MOP (servidumbre de las calles y cuerpos de agua) antes de iniciar la obra / Incluir la aprobación en el informe de seguimiento correspondiente"
+    },
+    {
+     "id": "res166-05",
+     "codigo": "art.4 (d)",
+     "texto": "Plan de daños, reubicación a las infraestructura y estructuras del IDAAN"
+    },
+    {
+     "id": "res166-06",
+     "codigo": "art.4 (e)",
+     "texto": "Censo final de las estructuras públicas y privadas que serán afectadas de acuerdo con el trazado del alineamiento del proyecto"
+    },
+    {
+     "id": "res166-07",
+     "codigo": "art.4 (f)",
+     "texto": "Estudio Hidrológico e Hidráulico por subcuencas, aprobado por la Dir, Nal. De EyD - Dept. de Revisión y aprobación de planos de MOP. Incluir aprobación en el informe de seguimiento correspondiente"
+    },
+    {
+     "id": "res166-08",
+     "codigo": "art.4 (g)",
+     "texto": "Aprobación del Plan de Ry R de FyF, antes de las actividades de desmonte y mov. de tierra Coord la implementación con la Dir. Regional MiAMBIENTE/P.O. previo a la ejecución del Proyecto, incluir los resultados en el informe de seguimiento. Incluir las 2 especies de orquídeas"
+    },
+    {
+     "id": "res166-09",
+     "codigo": "art.4 (h)",
+     "texto": "Plan de Manejo Arqueológico: Caracterización de las 3 colectoras, con permiso de Patrimonio Histórico del INAC / Monitoreo arq. permanente durante los movimiento de tierra"
+    },
+    {
+     "id": "res166-10",
+     "codigo": "art.4 (i)",
+     "texto": "Permiso y propuesta de plan de manejo arqueológico, de dichas actividades previo a la caracterización y monitoreo arqueológico permanente"
+    },
+    {
+     "id": "res166-11",
+     "codigo": "art.4 (j)",
+     "texto": "Autorización de obra en cauce, se debe contemplar los impactos durante las obras y posterior"
+    },
+    {
+     "id": "res166-12",
+     "codigo": "art.4 (k)",
+     "texto": "Identificación de los usuarios registrados del recurso Hídrico (Acueductos rurales / comité de cuencas / IDAAN / MINSA), previo a la etapa de construcción. Medidas tomadas para evitar, reducir y mitigar las afectaciones por la construcción de las obras en cauce."
+    },
+    {
+     "id": "res166-13",
+     "codigo": "art.4 (l)",
+     "texto": "Cuenta con aval de ACP, previo a movimiento de tierra, excavación o construcción en zonas de administración de este. Incluir en el primer informe."
+    },
+    {
+     "id": "res166-14",
+     "codigo": "art.4 (m)",
+     "texto": "Cuenta con la concesión de agua, incluida en el informe correspondiente"
+    },
+    {
+     "id": "res166-15",
+     "codigo": "art.4 (n)",
+     "texto": "Protección, conservación y reforestación de las especies nativas de la fuentes hídricas; la franja del bosque protector será equivalente al ancho del cauce de las respectivas fuentes (no puede ser menor a 10 m). Excepto áreas donde van las colectoras, subcolectoras y línea de impulsión"
+    },
+    {
+     "id": "res166-16",
+     "codigo": "art.4 (o)",
+     "texto": "Monitoreo de calidad de aire y ruido c/6 meses, etapa de construcción (representativos, al área del proyecto)"
+    },
+    {
+     "id": "res166-17",
+     "codigo": "art.4 (p)",
+     "texto": "Permiso de poda /tala con Autorización de MiAMBIENTE"
+    },
+    {
+     "id": "res166-18",
+     "codigo": "art.4 (q)",
+     "texto": "Prueba de calidad de agua (aguas arriba y aguas abajo, de la zona de construcción del Río Caimito, para el paso de la colectora Martín Sánchez, c/6 meses durante la construcción, finalizada la construcción y cada año en operación. Incluir en el informe"
+    },
+    {
+     "id": "res166-19",
+     "codigo": "art.4 (r)",
+     "texto": "Prueba de calidad de agua (aguas arriba y aguas abajo, 117 puntos de obra en cauce) Cada 6 meses durante la construcción y finalización de la construcción."
+    },
+    {
+     "id": "res166-20",
+     "codigo": "art.4 (s)",
+     "texto": "Manejo integral de los desechos, en las etapas de construcción, operación y abandono"
+    },
+    {
+     "id": "res166-21",
+     "codigo": "art.4 (t)",
+     "texto": "Cumplimiento de las leyes, normas, permisos, reglamentos y aprobaciones del diseño, cálculos y funcionamiento del proyecto; emitidos por la autoridades pertinentes"
+    },
+    {
+     "id": "res166-22",
+     "codigo": "art.4 (u)",
+     "texto": "Cumplimiento con las COPANIT 44-2000 Higiene y seguridad industrial (ruido) y 45-2000 Higiene y Seguridad Industrial (vibraciones)"
+    },
+    {
+     "id": "res166-23",
+     "codigo": "art.4 (v)",
+     "texto": "Pago de indemnización ecológica"
+    },
+    {
+     "id": "res166-24",
+     "codigo": "art.4 (w)",
+     "texto": "Plan de reforestación, permiso al Ministerio"
+    },
+    {
+     "id": "res166-25",
+     "codigo": "art.4 (x)",
+     "texto": "Informe de cumplimiento semestral en la etapa de la construcción y anual en etapa de operación. 3 Cd y 1 impreso. Elaborado por idóneo independiente al proyecto"
+    },
+    {
+     "id": "res166-26",
+     "codigo": "art.4 (y)",
+     "texto": "Autorizaciones de los dueños de las 9 fincas, previa a la construcción. Evidenciar con el registro público de la propiedad y cédula. Incluida en el informe."
+    },
+    {
+     "id": "res166-27",
+     "codigo": "art.4 (z)",
+     "texto": "Herramienta ambiental para las instalaciones provisionales y campamentos cuando estén fuera de servidumbre pública. O si incurre en un impacto ambiental."
+    },
+    {
+     "id": "res166-28",
+     "codigo": "art.4 (aa)",
+     "texto": "Información a la comunidad de los trabajos a ejecutar, letreros, señalización"
+    },
+    {
+     "id": "res166-29",
+     "codigo": "art.4 (bb)",
+     "texto": "Coordinación previa a las autoridades competentes en caso de cierre temporales de la vialidad. Comunicación con anterioridad de la logistica a utilizar y los periodos de trabajo."
+    },
+    {
+     "id": "res166-30",
+     "codigo": "art.5",
+     "texto": "Presentar a MiAmbiente cualquier modificación, según decreto que cumplan"
+    }
+   ]
+  },
+  {
+   "id": "gen",
+   "titulo": "",
+   "columnas": false,
+   "conCodigo": false,
+   "items": [
+    {
+     "id": "gen-01",
+     "texto": "RESULTADOS DE MONITOREOS"
+    },
+    {
+     "id": "gen-02",
+     "texto": "CUADRO RESUMEN DE CUMPLIMIENTO POR PROGRAMA"
+    },
+    {
+     "id": "gen-03",
+     "texto": "OBSERVACIONES Y RECOMENDACIONES GENERALES PARA EL PROMOTOR"
+    }
+   ]
+  },
+  {
+   "id": "anx",
+   "titulo": "ANEXOS A CONSIDERAR",
+   "columnas": true,
+   "conCodigo": false,
+   "items": [
+    {
+     "id": "anx-01",
+     "texto": "Cronograma de avance del proyecto"
+    },
+    {
+     "id": "anx-02",
+     "texto": "Listado de equipos"
+    },
+    {
+     "id": "anx-03",
+     "texto": "Registro de mantenimiento de equipos (fechas estén dentro del periodo)"
+    },
+    {
+     "id": "anx-04",
+     "texto": "Lista de asistencia a capacitaciones ambientales (fechas estén dentro del periodo)"
+    },
+    {
+     "id": "anx-05",
+     "texto": "Registros o listas de verificación de inspecciones ambientales"
+    },
+    {
+     "id": "anx-06",
+     "texto": "Permiso de tala y resolución de indemnización ecológica."
+    },
+    {
+     "id": "anx-07",
+     "texto": "Registros y disposición final de residuos comunes"
+    },
+    {
+     "id": "anx-08",
+     "texto": "Certificado de tratamiento final de desechos peligrosos"
+    },
+    {
+     "id": "anx-09",
+     "texto": "Informe de rescate de fauna y aprobación del mismo"
+    },
+    {
+     "id": "anx-10",
+     "texto": "Permisos tramitados en ATTT , MOP, ANAM (obra en cauce) y otras instituciones"
+    },
+    {
+     "id": "anx-11",
+     "texto": "Registro y disposición final de escombros"
+    },
+    {
+     "id": "anx-12",
+     "texto": "Control de salida y disposición de residuos vegetales"
+    },
+    {
+     "id": "anx-13",
+     "texto": "Plan de Reforestación e inventario forestal aprobado por MiAMBIENTE y Municipio ( cronograma, % de avance)"
+    },
+    {
+     "id": "anx-14",
+     "texto": "Monitoreos ambientales (Calidad de aire ambiental, análisis de agua superficial, ruido ambiental, monitoreos de fuentes fijas, monitoreo de emisiones móviles) (certificados, calibraciones vigentes)"
+    },
+    {
+     "id": "anx-15",
+     "texto": "Plan de Seguridad y Salud Ocupacional aprobado"
+    },
+    {
+     "id": "anx-16",
+     "texto": "Monitoreos de Salud Ocupacional (Dosimetrias, Vibraciones etc)"
+    },
+    {
+     "id": "anx-17",
+     "texto": "Registros o listas de verificación de inspecciones de salud y seguridad"
+    },
+    {
+     "id": "anx-18",
+     "texto": "Lista de asistencia a capacitaciones"
+    },
+    {
+     "id": "anx-19",
+     "texto": "Registro de inspecciones de extintores"
+    },
+    {
+     "id": "anx-20",
+     "texto": "Registro de entrega de EPPs."
+    },
+    {
+     "id": "anx-21",
+     "texto": "Certificados de fumigación"
+    },
+    {
+     "id": "anx-22",
+     "texto": "Registro de limpieza de baños portátiles"
+    },
+    {
+     "id": "anx-23",
+     "texto": "Plan de Manejo de Tránsito"
+    },
+    {
+     "id": "anx-24",
+     "texto": "Plan de Educacion Ambiental, actividades de educación ambiental (cronograma, porcentaje de avance)"
+    },
+    {
+     "id": "anx-25",
+     "texto": "Informes Sociales (cronograma de actividades,lista de asistencia de reuniones inf. o comunitarias, publicaciones y volanteo, actas de vecindad, afectaciones, permisos de paso etc"
+    },
+    {
+     "id": "anx-26",
+     "texto": "Reportes de afectaciones ambientales"
+    }
+   ]
+  }
+ ]
+}

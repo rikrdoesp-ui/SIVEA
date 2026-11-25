@@ -1,0 +1,27 @@
+# Lista de permitidos: solo se versiona lo publicable.
+# Cualquier documento real, en cualquier carpeta o formato, queda fuera por defecto.
+*
+!.gitignore
+!README.md
+!LICENSE
+!index.html
+!manifest.webmanifest
+!sw.js
+!src/
+!src/**
+!vendor/
+!vendor/**
+!tests/
+!tests/**
+!tools/
+!tools/**
+!iconos/
+!iconos/*.png
+!docs/
+!docs/index.html
+!docs/manifest.webmanifest
+!docs/sw.js
+!docs/*.png
+!docs/.nojekyll
+
+!iconos/marca-sivea.jpg

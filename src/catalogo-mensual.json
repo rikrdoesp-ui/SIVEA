@@ -1,0 +1,187 @@
+{
+ "id": "mensual-r-pa03-20",
+ "encabezado": {
+  "procedimiento": "PROCEDIMIENTO ESPECIFICO SOCIO AMBIENTAL",
+  "titulo": "Lista de Verificación de la Gestión Ambiental Mensual Contratista",
+  "codigo": "R-PA03-20",
+  "edicion": "0",
+  "vigencia": "2025"
+ },
+ "secciones": [
+  {
+   "id": "A",
+   "titulo": "A. Actividades de Gestión Ambiental",
+   "peso": 20,
+   "columnas": true,
+   "items": [
+    {
+     "id": "mA-01",
+     "codigo": "1",
+     "texto": "Asistencia a reuniones de seguimiento con UCP."
+    },
+    {
+     "id": "mA-02",
+     "codigo": "2",
+     "texto": "Asistencia a inspecciones ambientales convocadas por UCP."
+    },
+    {
+     "id": "mA-03",
+     "codigo": "3",
+     "texto": "Respuesta en tiempo oportuno a consultas, solicitud de información."
+    },
+    {
+     "id": "mA-04",
+     "codigo": "4",
+     "texto": "Entrega en tiempo oportuno de cierre de hallazgos de informes de adecuaciones solicitadas en las inspecciones de UCP."
+    },
+    {
+     "id": "mA-05",
+     "codigo": "5",
+     "texto": "Listas de verificación y/o bitácoras de cumplimiento de aspectos ambientales por mes."
+    },
+    {
+     "id": "mA-06",
+     "codigo": "6",
+     "texto": "Se entregó a tiempo el informe semestral para MiAmbiente (si aplica)."
+    }
+   ],
+   "conCodigo": true
+  },
+  {
+   "id": "B",
+   "titulo": "B. Documentos en obra y para control mensual de programas de mitigación y compensación",
+   "peso": 35,
+   "items": [
+    {
+     "id": "mB-01",
+     "codigo": "1",
+     "texto": "Registro, actualización y gestión en tiempo oportuno de los permisos ambientales tramitados."
+    },
+    {
+     "id": "mB-02",
+     "codigo": "2",
+     "texto": "Se cumple con el cronograma de Monitoreos ambientales, se muestran evidencias de las certificaciones de emisiones atmosféricas de los vehículos utilizados (vigencia de expedición inferior a un año)."
+    },
+    {
+     "id": "mB-03",
+     "codigo": "3",
+     "texto": "Registro de mantenimiento preventivo y correctivo de maquinarias, evidencias."
+    },
+    {
+     "id": "mB-04",
+     "codigo": "4",
+     "texto": "Evidencias de controles de calidad de aire, áreas definidas para el acopio y señalizadas, riego, camiones con lona, personal con protección respiratoria (si aplica)."
+    },
+    {
+     "id": "mB-05",
+     "codigo": "5",
+     "texto": "Se presentan evidencias para el programa de control de ruidos y vibraciones"
+    },
+    {
+     "id": "mB-06",
+     "codigo": "6",
+     "texto": "Programa y registro de capacitación de los trabajadores en temas de ambiente. Evidencias"
+    },
+    {
+     "id": "mB-07",
+     "codigo": "7",
+     "texto": "Evidencia de implementación de BPA en campamento principal"
+    },
+    {
+     "id": "mB-08",
+     "codigo": "8",
+     "texto": "Se evidencian Registros y control de entrega de material reciclable (si aplica)"
+    },
+    {
+     "id": "mB-09",
+     "codigo": "9",
+     "texto": "Se cumple con el Programa de Campamentos temporales (permisología, señalización etc.)"
+    },
+    {
+     "id": "mB-10",
+     "codigo": "10",
+     "texto": "Registros/ control y recibo de disposición de desechos vegetales (si aplica)."
+    },
+    {
+     "id": "mB-11",
+     "codigo": "11",
+     "texto": "Registros/ control y recibo de manejo de desechos sólidos."
+    },
+    {
+     "id": "mB-12",
+     "codigo": "12",
+     "texto": "Registros/ control y recibo de disposición de escombros y material de excavación (si aplica)."
+    },
+    {
+     "id": "mB-13",
+     "codigo": "13",
+     "texto": "Registros/ control y certificado de disposición de desechos peligrosos."
+    },
+    {
+     "id": "mB-14",
+     "codigo": "14",
+     "texto": "Registro de limpieza de baños portátiles."
+    },
+    {
+     "id": "mB-15",
+     "codigo": "15",
+     "texto": "Registro de especies rescatadas y/o reubicadas (si aplica)."
+    },
+    {
+     "id": "mB-16",
+     "codigo": "16",
+     "texto": "Evidencia de letreros de protección de los recursos naturales (prohibido caza y captura de especies)"
+    },
+    {
+     "id": "mB-17",
+     "codigo": "17",
+     "texto": "Registros de fumigación o controles de vectores"
+    },
+    {
+     "id": "mB-18",
+     "codigo": "18",
+     "texto": "Se cumple con las medidas del Programa de control de erosión"
+    },
+    {
+     "id": "mB-19",
+     "codigo": "19",
+     "texto": "Señalización preventiva, restrictiva, reglamentaria para control de tránsito, no obstaculiza la visibilidad."
+    },
+    {
+     "id": "mB-20",
+     "codigo": "20",
+     "texto": "Se ejecuta según cronograma las actividades de Educación Ambiental y se entrega el reporte de actividades de educación ambiental"
+    },
+    {
+     "id": "mB-21",
+     "codigo": "21",
+     "texto": "Reporte de implementación de los planes de prevención de riesgos. Los HC y productos peligrosos se encuentran en contenedores adecuados, en lugares protegidos, con hoja MSDS y extintor en sitio, evidencias"
+    },
+    {
+     "id": "mB-22",
+     "codigo": "22",
+     "texto": "Reporte de afectaciones de servicios públicos."
+    },
+    {
+     "id": "mB-23",
+     "codigo": "23",
+     "texto": "Reporte de implementación de los planes de contingencias (si aplica). Se notifica en tiempo oportuno al cliente de roturas, daños, afectaciones, otros, con su plan de emergencia ambiental (si aplica)."
+    }
+   ],
+   "conCodigo": true
+  },
+  {
+   "id": "C",
+   "titulo": "C. Cumplimiento generado en las inspecciones de gestión ambiental del cliente",
+   "peso": 45,
+   "numerico": true,
+   "items": [
+    {
+     "id": "mC-01",
+     "codigo": "1",
+     "texto": "Porcentaje de cumplimiento ambiental mensual"
+    }
+   ]
+  }
+ ]
+}

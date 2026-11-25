@@ -1,0 +1,10 @@
+Procedencia de los archivos de terceros (SHA-256).
+pdf.js 6.5.438: paquete npm pdfjs-dist, integridad verificada contra npm (ver pdfjs/VERSION.txt).
+jsPDF 4.2.1: copiado de Vigia, donde se verifico contra el checksum publicado en npm.
+
+b721e3375f478ad24e30e6f9566a8261900240d8ef9b8a4090f9489bf0c5bfc3 *jspdf.umd.min.js
+3a88402882cfa3e7e72c2c9b5149f52f0f88baf1c5b62aa11a41abdbc2072440 *pdfjs/pdf.min.mjs
+1e64c8240e54735ec5913b37acd5134747799cb8c6bb3777c70adbc01232d2aa *pdfjs/pdf.worker.min.mjs
+466f45c2a61a698152fb5400c27e56ff2ceb73dcb71fde3fc366a502308eaab0 *pdfjs/wasm/jbig2.wasm
+7ea4b2b04613370ad4e9c1162da750cc88b4b176eac0d0c164b3caff23fc0a46 *pdfjs/wasm/openjpeg.wasm
+663d86126d5f5fcb1c61490f94353e2a8375660b8c5498ab3ebab5a34b08800e *pdfjs/wasm/qcms_bg.wasm

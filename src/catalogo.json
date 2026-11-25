@@ -1,0 +1,329 @@
+{
+ "id": "esia-067-2005",
+ "encabezado": {
+  "programa": "Programa Saneamiento de Panamá",
+  "seccion": "Sección SocioAmbiental",
+  "titulo": "Lista de verificación de Informes Semestrales del EsIA Categoría III, titulado “Saneamiento de la Ciudad y la Bahía de Panamá” Resolución DINEORA IA- 067-2005",
+  "nota": "Se recomienda seguir el formato de índice de contenido mínimo, según lo establecido en el Anexo 4.14 de la Resolución AG N° 0347-2013 del 20 de junio de 2013,que aprueba el “Manual de Procedimientos, Control y Fiscalización Ambiental”."
+ },
+ "secciones": [
+  {
+   "id": "pma",
+   "titulo": "PROGRAMAS DEL PMA",
+   "columnas": true,
+   "conCodigo": true,
+   "items": [
+    {
+     "id": "pma-01",
+     "codigo": "F.4.1",
+     "texto": "Programa de Control de Ruidos y Vibraciones"
+    },
+    {
+     "id": "pma-02",
+     "codigo": "F.4.2",
+     "texto": "Programa de Calidad del Aire"
+    },
+    {
+     "id": "pma-03",
+     "codigo": "F.4.3",
+     "texto": "Programa de Limpieza y Desarraigue"
+    },
+    {
+     "id": "pma-04",
+     "codigo": "F.4.4",
+     "texto": "Programa de Control de Erosión"
+    },
+    {
+     "id": "pma-05",
+     "codigo": "F.4.5",
+     "texto": "Programa de Manejo de la Fauna Silvestre"
+    },
+    {
+     "id": "pma-06",
+     "codigo": "F.4.6",
+     "texto": "Programa de Control de Criaderos de Patógenos y Vectores Sanitarios"
+    },
+    {
+     "id": "pma-07",
+     "codigo": "F.4.7",
+     "texto": "Programa de Tránsito Vehicular y Peatonal"
+    },
+    {
+     "id": "pma-08",
+     "codigo": "F.4.8",
+     "texto": "Programa de Clausura de Tanques Sépticos"
+    },
+    {
+     "id": "pma-09",
+     "codigo": "F.4.9",
+     "texto": "Programa de Manejo del Paisaje"
+    },
+    {
+     "id": "pma-10",
+     "codigo": "F.4.10",
+     "texto": "Programa de Sitios Arqueológicos"
+    },
+    {
+     "id": "pma-11",
+     "codigo": "F.4.11",
+     "texto": "Programa de Manejo de Escombros"
+    },
+    {
+     "id": "pma-12",
+     "codigo": "F.4.12",
+     "texto": "Programa de Manejo de Obras de Concreto"
+    },
+    {
+     "id": "pma-13",
+     "codigo": "F.4.13",
+     "texto": "Programa de Manejo de Maquinaria y Equipo"
+    },
+    {
+     "id": "pma-14",
+     "codigo": "F.4.14",
+     "texto": "Programa de Manejo de las Casetas de Construcción y Campamentos"
+    },
+    {
+     "id": "pma-15",
+     "codigo": "F.4.15",
+     "texto": "Programa de Información, Comunicación y Educación Ambiental"
+    },
+    {
+     "id": "pma-16",
+     "codigo": "F.4.16",
+     "texto": "PLAN DE PREVENCIÓN DE RIESGOS (SECCIÓN F.6 DEL ESIA)"
+    },
+    {
+     "id": "pma-17",
+     "codigo": "F.4.17",
+     "texto": "PLANES DE CONTINGENCIA (SECCIÓN F.7 DEL ESIA)"
+    }
+   ]
+  },
+  {
+   "id": "res",
+   "titulo": "CUMPLIMIENTO DE LA RESOLUCIÓN DEL ESTUDIO DE IMPACTO AMBIENTAL - DINEORA-IA-067-2005",
+   "columnas": true,
+   "conCodigo": true,
+   "items": [
+    {
+     "id": "res-01",
+     "codigo": "art.3",
+     "texto": "Presentar EIA para el desarrollo del componente 3"
+    },
+    {
+     "id": "res-02",
+     "codigo": "art.3",
+     "texto": "Contar previo inicio de obras con permisos por AMP, MINSA, MOP e INAC"
+    },
+    {
+     "id": "res-03",
+     "codigo": "art.3",
+     "texto": "Coordinar previo inicio de obras con el MOP  lo concerniente a ruptura de calles y avenidas"
+    },
+    {
+     "id": "res-04",
+     "codigo": "art.3",
+     "texto": "Aplicar medidas de Seguridad e Higiene al personal contratado conforme a reglamentación de MINSA y MOP"
+    },
+    {
+     "id": "res-05",
+     "codigo": "art.3",
+     "texto": "Coordinar previo inicio de obras con Mi Ambiente los sitios temporales y permanentes para el manejo de desechos sólidos"
+    },
+    {
+     "id": "res-06",
+     "codigo": "art.3",
+     "texto": "Implementar medidas y acciones necesarias durante construccion y mov. de tierra que controlen la escorrentía"
+    },
+    {
+     "id": "res-07",
+     "codigo": "art.3",
+     "texto": "Presentar ante Anam el Plan de Educación Ambiental sobre las \"Buenas Prácticas de Construcción\""
+    },
+    {
+     "id": "res-08",
+     "codigo": "art.3",
+     "texto": "Cumplir con el Reglamento Técnico DGNTI COPANIT 35-2000"
+    },
+    {
+     "id": "res-09",
+     "codigo": "art.3",
+     "texto": "Cumplir con la Ley 44 DEL 2002  sobre Manejo de Cuencas"
+    },
+    {
+     "id": "res-10",
+     "codigo": "art.3",
+     "texto": "Incluir previo inicio de operaciones un plan de rehabilitación de estructuras públicas coordinadas con el MOP"
+    },
+    {
+     "id": "res-11",
+     "codigo": "art.3",
+     "texto": "Cumplir con la Ley 1 del 3 de feb Ley Forestal (permiso de tala)"
+    },
+    {
+     "id": "res-12",
+     "codigo": "art.3",
+     "texto": "Reforestar por cada árbol talado, con 10 árboles (Plan de Reforestación)"
+    },
+    {
+     "id": "res-13",
+     "codigo": "art.3",
+     "texto": "Presentar cada 6 meses ante la ANAM informe de implementación de medidas de mitigación y control"
+    },
+    {
+     "id": "res-14",
+     "codigo": "art.3",
+     "texto": "Colocar antes de iniciar la ejecución del proyecto un letrero según formato indicado (verde)"
+    },
+    {
+     "id": "res-15",
+     "codigo": "art.3",
+     "texto": "Informar a ANAM las modificaciones o cambios es las técnicas y medidas de construcción"
+    },
+    {
+     "id": "res-16",
+     "codigo": "Art 4",
+     "texto": "El promotor del proyecto sera responsable con las empresas que contrate del cumplimiento de EIA y su resolución"
+    },
+    {
+     "id": "res-17",
+     "codigo": "Art 6",
+     "texto": "El promotor del proyecto , contratistas , asociados deben cumplir con las leyes, decretos ambientales vigentes nacionales"
+    }
+   ]
+  },
+  {
+   "id": "gen",
+   "titulo": "",
+   "columnas": false,
+   "conCodigo": false,
+   "items": [
+    {
+     "id": "gen-01",
+     "texto": "RESULTADOS DE MONITOREOS"
+    },
+    {
+     "id": "gen-02",
+     "texto": "CUADRO RESUMEN DE CUMPLIMIENTO POR PROGRAMA"
+    },
+    {
+     "id": "gen-03",
+     "texto": "OBSERVACIONES Y RECOMENDACIONES GENERALES PARA EL PROMOTOR"
+    }
+   ]
+  },
+  {
+   "id": "anx",
+   "titulo": "ANEXOS A CONSIDERAR",
+   "columnas": true,
+   "conCodigo": false,
+   "items": [
+    {
+     "id": "anx-01",
+     "texto": "Cronograma de avance del proyecto"
+    },
+    {
+     "id": "anx-02",
+     "texto": "Listado de equipos"
+    },
+    {
+     "id": "anx-03",
+     "texto": "Registro de mantenimiento de equipos (fechas estén dentro del periodo)"
+    },
+    {
+     "id": "anx-04",
+     "texto": "Lista de asistencia a capacitaciones ambientales (fechas estén dentro del periodo)"
+    },
+    {
+     "id": "anx-05",
+     "texto": "Registros o listas de verificación de inspecciones ambientales"
+    },
+    {
+     "id": "anx-06",
+     "texto": "Permiso de tala  y resolución de indemnización ecológica."
+    },
+    {
+     "id": "anx-07",
+     "texto": "Registros  y disposición final de residuos comunes"
+    },
+    {
+     "id": "anx-08",
+     "texto": "Certificado de tratamiento final de desechos peligrosos"
+    },
+    {
+     "id": "anx-09",
+     "texto": "Informe de rescate de fauna y aprobación del mismo"
+    },
+    {
+     "id": "anx-10",
+     "texto": "Permisos tramitados en ATTT , MOP, ANAM (obra en cauce) y otras instituciones"
+    },
+    {
+     "id": "anx-11",
+     "texto": "Registro y disposición final de escombros"
+    },
+    {
+     "id": "anx-12",
+     "texto": "Control de salida y disposición de residuos vegetales"
+    },
+    {
+     "id": "anx-13",
+     "texto": "Plan de Reforestación e inventario forestal aprobado por MiAMBIENTE y Municipio ( cronograma, % de avance)"
+    },
+    {
+     "id": "anx-14",
+     "texto": "Monitoreos ambientales (Calidad de aire ambiental, análisis de agua superficial, ruido ambiental, monitoreos de fuentes fijas, monitoreo de emisiones móviles)  (certificados, calibraciones vigentes)"
+    },
+    {
+     "id": "anx-15",
+     "texto": "Plan de Seguridad y Salud Ocupacional aprobado"
+    },
+    {
+     "id": "anx-16",
+     "texto": "Monitoreos de Salud Ocupacional (Dosimetrias, Vibraciones etc)"
+    },
+    {
+     "id": "anx-17",
+     "texto": "Registros o listas de verificación de inspecciones de salud y seguridad"
+    },
+    {
+     "id": "anx-18",
+     "texto": "Lista de asistencia a capacitaciones de seguridad / uso de extintores"
+    },
+    {
+     "id": "anx-19",
+     "texto": "Registro de inspecciones de extintores"
+    },
+    {
+     "id": "anx-20",
+     "texto": "Registro de entrega de EPPs."
+    },
+    {
+     "id": "anx-21",
+     "texto": "Certificados de fumigación"
+    },
+    {
+     "id": "anx-22",
+     "texto": "Registro de limpieza de baños portátiles"
+    },
+    {
+     "id": "anx-23",
+     "texto": "Plan de Manejo de Tránsito"
+    },
+    {
+     "id": "anx-24",
+     "texto": "Plan de Educacion Ambiental, actividades de educación ambiental (cronograma, porcentaje de avance)"
+    },
+    {
+     "id": "anx-25",
+     "texto": "Informes Sociales (cronograma de actividades,lista de asistencia de reuniones inf. o comunitarias, publicaciones y volanteo, actas de vecindad, afectaciones, permisos de paso etc"
+    },
+    {
+     "id": "anx-26",
+     "texto": "Reportes de afectaciones ambientales"
+    }
+   ]
+  }
+ ]
+}

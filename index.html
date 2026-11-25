@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' blob: 'wasm-unsafe-eval'; style-src 'unsafe-inline'; img-src 'self' data: blob:; font-src data: blob:; worker-src 'self' blob:; manifest-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>SIVEA · Sistema Inteligente de Verificación Ambiental</title>
+<meta name="description" content="Revisión de informes semestrales de seguimiento ambiental y generación de la lista de verificación.">
+<meta name="theme-color" content="#0b2140">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+  /* Colores del icono de SIVEA. Reglas: un solo acento (el verde del check) para la acción principal,
+     el SI y el progreso; azul de la marca para enlaces y foco; grises fríos.
+     Radios: tarjetas 10, controles 6, menús 8, diálogo 12, etiquetas y frases redondas. */
+  :root {
+    --papel: #fff; --tinta: #14243a; --suave: #5b6b7c; --marino: #1d5a96; --banda: #e8eef3;
+    --etiqueta: #c3ced8; --gris: #eef2f6; --rojo: #c62f3a; --mesa: #eef2f6; --borde-mesa: #9aa8b6;
+    --linea: #d5dee6; --seleccion: #e9f3ee; --na: #5b6b7c;
+    --acento: #267d43; --acento-hover: #1f6a38; --degradado: linear-gradient(90deg, #6cc24a, #2e7cd6);
+    --barra: linear-gradient(100deg, #0b2140 0%, #0b2a48 55%, #0c3a4e 100%);
+    --barra-borde: rgba(255, 255, 255, .26); --barra-hover: rgba(255, 255, 255, .12);
+    --borde-tarjeta: #dde5ec; --boton-hover: #eef2f6;
+    --columnas: minmax(620px, 50%) minmax(0, 1fr);
+    --sombra-hoja: 0 1px 2px rgba(16, 36, 58, .06), 0 4px 14px rgba(16, 36, 58, .07);
+    --sombra-menu: 0 8px 24px rgba(16, 36, 58, .16), 0 2px 6px rgba(16, 36, 58, .08);
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body { margin: 0; color: var(--tinta); background: var(--mesa); font: 13.5px/1.3 "Segoe UI", system-ui, sans-serif; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  button:disabled { cursor: default; opacity: .5; }
+  :focus-visible { outline: 2px solid var(--marino); outline-offset: -2px; }
+  [hidden] { display: none !important; }
+  .oculto { position: absolute; width: 1px; height: 1px; opacity: 0; }
+
+  .app { display: grid; grid-template-columns: var(--columnas); grid-template-rows: auto minmax(0, 1fr); height: 100vh; }
+
+  /* Una sola barra, alineada con las dos hojas */
+  .barra { grid-column: 1 / -1; display: grid; grid-template-columns: var(--columnas); color: #fff; background: var(--barra); border-top: 3px solid transparent; border-image: var(--degradado) 1; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(11, 33, 64, .18); }
+  .barra-ficha, .controles { position: relative; display: flex; align-items: center; gap: 10px; min-width: 0; padding: 10px 14px; }
+  .barra :focus-visible, .barra .boton:focus-within { outline: 2px solid #fff; outline-offset: 2px; }
+  .vacio :focus-visible, .vacio .boton:focus-within { outline: 2px solid var(--marino); outline-offset: 2px; }
+  .boton, .controles button, .controles select, .controles input, #siguiente-pendiente, #tipo-ficha {
+    background: transparent; color: #fff; border: 1px solid var(--barra-borde); border-radius: 6px; padding: 5px 10px; white-space: nowrap; transition: background-color .12s;
+  }
+  .boton { cursor: pointer; }
+  .boton:hover, .controles button:hover:enabled, #siguiente-pendiente:hover:enabled { background: var(--barra-hover); }
+  #nombre-informe { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #avance { white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .pista { position: absolute; left: 14px; right: 14px; bottom: 0; height: 3px; border-radius: 3px; background: var(--barra-hover); }
+  #avance-barra, #lectura-barra { height: 100%; width: 0; background: var(--degradado); border-radius: 3px; }
+  #avance-barra { transition: width .15s; }
+  .controles > * { flex: none; white-space: nowrap; }
+  .controles > .pista { position: absolute; }
+  .controles select { flex: 1 1 100px; min-width: 90px; max-width: 280px; }
+  .controles select option, #tipo-ficha option { color: var(--tinta); background: var(--papel); }
+  #tipo-ficha { flex: 0 1 auto; min-width: 0; max-width: 200px; padding: 5px 8px; text-overflow: ellipsis; }
+  .controles input { width: 58px; text-align: right; margin-left: 4px; }
+  .controles button, .controles select, .controles input { padding: 5px 8px; }
+  .controles .grupo { display: flex; gap: 4px; }
+  .controles[inert] > :not(.pista) { opacity: .4; }
+
+  /* Dos hojas sobre la mesa */
+  .ficha { display: flex; flex-direction: column; min-height: 0; padding: 4px 8px 12px 14px; }
+  .hoja-ficha { flex: 1; min-height: 0; display: flex; flex-direction: column; background: var(--papel); border: 1px solid var(--borde-tarjeta); border-radius: 10px; overflow: hidden; box-shadow: var(--sombra-hoja); }
+  .hoja { flex: 1; min-height: 0; overflow: auto; }
+  .membrete { display: grid; grid-template-columns: 62px 1fr 62px; align-items: center; background: var(--gris); border-bottom: 1px solid var(--linea); padding: 3px 8px; text-align: center; font-weight: 700; line-height: 1.2; }
+  .membrete img { height: 38px; }
+  .titulo-lista { background: var(--gris); border-bottom: 1px solid var(--linea); padding: 5px 8px; text-align: center; font-weight: 700; font-size: 12px; }
+  .dato { display: flex; align-items: baseline; gap: 6px; border-bottom: 1px solid var(--linea); padding: 1px 6px; font-weight: 700; font-size: 12.5px; }
+  .dato label { white-space: nowrap; }
+  .dato input { flex: 1; min-width: 0; border: 0; background: transparent; padding: 3px; font-weight: 400; }
+
+  /* Lista mensual */
+  .membrete-m { grid-template-columns: 62px 1fr auto; gap: 8px; }
+  .subtitulo-m { font-size: 12px; }
+  .codigo-m { text-align: left; font-size: 11px; white-space: nowrap; }
+  .dato .normal { font-weight: 400; }
+  .fila.total { background: var(--seleccion); font-weight: 700; }
+  .fila.total .titulo-seccion { text-align: right; }
+  .fila.total .col-obs { place-items: center start; padding: 3px 6px; }
+  .texto-fijo { display: flex; align-items: center; padding: 4px 6px; min-height: 26px; }
+  .pct-c { grid-column: 2 / 5; display: flex; align-items: center; justify-content: center; gap: 2px; padding: 0 2px; }
+  .pct-c input { width: 100%; min-width: 0; border: 1px solid var(--etiqueta); border-radius: 4px; padding: 2px; text-align: right; background: var(--papel); }
+  .pct-c input[aria-invalid="true"] { border-color: var(--rojo); }
+
+  .fila { display: grid; grid-template-columns: minmax(0, 1fr) 30px 30px 34px 190px; border-bottom: 1px solid var(--linea); }
+  .fila > * { border-left: 1px solid var(--linea); }
+  .fila > :first-child { border-left: 0; }
+  .fila.cabecera { background: var(--banda); position: sticky; top: 0; z-index: 2; }
+  .fila:not(.cabecera) { scroll-margin-top: 56px; }
+  .titulo-seccion { padding: 3px 6px; font-weight: 700; font-size: 12px; }
+  .col, .col-obs { display: grid; place-items: center; font-size: 11.5px; }
+  .requisito { all: unset; box-sizing: border-box; display: flex; gap: 6px; align-items: center; padding: 4px 6px; min-height: 26px; cursor: pointer; }
+  .requisito:focus-visible { outline: 2px solid var(--marino); outline-offset: -2px; }
+  .codigo { flex: 0 0 42px; text-align: center; color: var(--suave); font-size: 12px; }
+  .fila.resaltada .requisito { background: var(--banda); font-weight: 700; }
+  .fila:not(.cabecera):hover .requisito, .fila.activa .requisito { background: var(--seleccion); }
+  .fila.activa { box-shadow: inset 4px 0 0 var(--acento); }
+  .fila.activa .requisito { padding-left: 10px; }
+
+  /* La marca es el gesto de la app: se imprime sobre la casilla, como un sello */
+  .marca { border: 0; margin: 3px 2px; border-radius: 4px; background: transparent; padding: 0; font-size: 12px; color: var(--suave); transition: background-color .12s, color .12s; }
+  .marca:hover { background: var(--banda); color: var(--tinta); }
+  .marca[aria-pressed="true"] { color: #fff; font-weight: 700; animation: sello .13s ease-out; }
+  .marca.si[aria-pressed="true"] { background: var(--acento); }
+  .marca.no[aria-pressed="true"] { background: transparent; color: var(--rojo); font-size: 13px; }
+  .marca.na[aria-pressed="true"] { background: var(--na); }
+  @keyframes sello { from { transform: scale(1.35); } to { transform: scale(1); } }
+  textarea.obs { display: block; width: 100%; min-height: 100%; padding: 4px; font-size: 12px; overflow-wrap: anywhere; border: 0; border-left: 1px solid var(--linea); border-radius: 0; background: transparent; resize: none; field-sizing: content; cursor: text; }
+  textarea.obs:hover { background: var(--seleccion); }
+  textarea.obs:focus { background: #fff; outline: 2px solid var(--marino); outline-offset: -2px; }
+
+  #detalle { background: var(--seleccion); border-bottom: 2px solid var(--acento); padding: 8px 10px 10px 14px; display: grid; gap: 8px; }
+  .evidencia { display: grid; grid-template-columns: minmax(0, 1fr) auto auto auto; gap: 8px; align-items: center; padding: 1px 0; }
+  .evidencia .ir { all: unset; cursor: pointer; color: var(--marino); text-decoration: underline; text-decoration-color: var(--etiqueta); text-underline-offset: 3px; }
+  .evidencia .ir:hover { text-decoration-color: currentColor; }
+  .evidencia .ir:focus-visible { outline: 2px solid var(--marino); }
+  .evidencia.no-aplica .ir { color: var(--suave); font-style: italic; }
+  .pag, .nota { color: var(--suave); }
+  .nota { margin: 0; }
+  .citar, .chip { border: 1px solid var(--marino); border-radius: 999px; background: var(--papel); color: var(--marino); padding: 2px 10px; transition: background-color .12s, color .12s; }
+  .citar:hover, .chip:hover { background: var(--marino); color: #fff; }
+  .paginas { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; }
+  #detalle label { display: block; color: var(--suave); margin-bottom: 2px; }
+  textarea { width: 100%; resize: vertical; border: 1px solid var(--etiqueta); border-radius: 6px; background: var(--papel); padding: 6px 8px; }
+
+  .cierre { display: grid; grid-template-columns: 108px minmax(0, 1fr); border-bottom: 1px solid var(--linea); }
+  .cierre label { display: grid; place-items: center; padding: 6px; text-align: center; border-right: 1px solid var(--linea); }
+  .cierre.obs-general label { background: var(--etiqueta); }
+  .cierre.final label { font-weight: 700; font-size: 14px; }
+  .cierre textarea { border: 0; border-radius: 0; background: transparent; min-height: 66px; }
+  .cierre.obs-general textarea { min-height: 110px; }
+
+  .pie-ficha { display: flex; gap: 12px; align-items: center; padding: 7px 10px; border-top: 1px solid var(--linea); background: var(--papel); }
+  .estados { flex: 1; min-width: 0; display: grid; gap: 2px; }
+  #estado { margin: 0; color: var(--suave); line-height: 1.25; }
+  #estado.error { color: var(--rojo); font-weight: 700; }
+  /* Acciones secundarias del pie: fuera del camino del botón principal */
+  .mas { position: relative; }
+  .mas summary { list-style: none; cursor: pointer; padding: 7px 12px; border: 1px solid var(--etiqueta); border-radius: 6px; white-space: nowrap; transition: background-color .12s; }
+  .mas summary::-webkit-details-marker { display: none; }
+  .mas summary:hover, .mas[open] summary { background: var(--boton-hover); }
+  .menu-mas { position: absolute; right: 0; bottom: calc(100% + 6px); z-index: 5; min-width: 230px; display: grid; padding: 4px 0; background: var(--papel); border: 1px solid var(--borde-tarjeta); border-radius: 8px; overflow: hidden; box-shadow: var(--sombra-menu); }
+  .menu-mas button { border: 0; background: transparent; text-align: left; padding: 8px 12px; color: var(--tinta); }
+  .menu-mas button:hover:enabled { background: var(--seleccion); }
+  .menu-mas .peligro { color: var(--rojo); border-top: 1px solid var(--banda); }
+  #vacio-avances { margin: 0; padding: 0; list-style: none; font-size: 14px; color: var(--suave); display: grid; gap: 3px; }
+  #generar { background: var(--acento); color: #fff; border: 1px solid var(--acento); border-radius: 6px; padding: 7px 16px; transition: background-color .12s; font-weight: 600; white-space: nowrap; }
+  #generar:hover:enabled { background: var(--acento-hover); }
+  #generar:focus-visible { outline: 2px solid var(--marino); outline-offset: 2px; }
+
+  .informe { min-width: 0; min-height: 0; color: var(--tinta); }
+  #visor { height: 100%; overflow: auto; padding: 4px 14px 12px 8px; text-align: center; }
+  canvas { background: #fff; box-shadow: var(--sombra-hoja); vertical-align: top; }
+
+  /* Antes de abrir un informe, la hoja de la derecha es donde se deja */
+  .vacio { height: 100%; aspect-ratio: 8.5 / 11; max-width: 100%; margin: 0 auto; display: grid; place-content: center; justify-items: center; gap: 16px; padding: 24px; border: 2px dashed var(--etiqueta); border-radius: 10px; background: var(--papel); color: var(--tinta); }
+  .vacio p { margin: 0; font-size: 22px; font-weight: 600; line-height: 1.2; max-width: 16em; }
+  .logo-app { flex: none; width: 32px; height: 32px; border-radius: 8px; box-shadow: 0 0 0 1px rgba(255, 255, 255, .18); }
+  .marca-vacio { width: min(260px, 60%); height: auto; }
+  .vacio-lista { font-size: 13px; color: var(--suave); text-align: center; }
+  .vacio .boton { background: var(--acento); color: #fff; border-color: var(--acento); font-weight: 600; padding: 8px 18px; }
+  .vacio .boton:hover { background: var(--acento-hover); }
+  .app.soltando .vacio { background: var(--seleccion); border-color: var(--acento); }
+  .app.soltando #visor { box-shadow: inset 0 0 0 3px var(--acento); }
+
+  /* Frases para la observación */
+  .grupo-frases { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; }
+  .grupo-frases + .grupo-frases { margin-top: 6px; }
+  .grupo-frases > .nota { flex-basis: 100%; }
+  .frase { border: 1px solid var(--etiqueta); border-radius: 999px; background: var(--papel); padding: 3px 11px; text-align: left; }
+  .frase:hover:enabled { border-color: var(--marino); background: var(--banda); }
+  .frase:disabled { background: var(--banda); color: var(--suave); cursor: default; }
+  .frase.larga { flex-basis: 100%; }
+  .quitar { min-width: 28px; min-height: 28px; border: 0; border-radius: 6px; background: transparent; color: var(--suave); font-size: 16px; line-height: 1; padding: 0; }
+  .quitar:hover { color: var(--rojo); background: var(--seleccion); }
+  .etiqueta-obs { display: flex; justify-content: space-between; align-items: baseline; }
+  /* Acciones de texto: un solo estilo en toda la ficha */
+  #guardar-frase, #ref-agregar, .pagina-actual { min-height: 28px; border: 0; background: transparent; color: var(--marino); text-decoration: underline; text-decoration-color: var(--etiqueta); text-underline-offset: 3px; padding: 0 2px; white-space: nowrap; }
+  #guardar-frase:hover, #ref-agregar:hover, .pagina-actual:hover { text-decoration-color: currentColor; }
+  #ref-agregar:disabled { text-decoration: none; }
+  .campos-ref { display: grid; grid-template-columns: minmax(0, 1fr) 96px auto 28px; gap: 6px; align-items: end; margin-top: 4px; }
+  .campos-ref input { width: 100%; border: 1px solid var(--etiqueta); border-radius: 6px; background: var(--papel); padding: 4px 8px; }
+
+  /* Vista previa de la ficha antes de descargarla */
+  #vista-previa { width: min(980px, 94vw); height: 94vh; max-height: none; padding: 0; border: 0; border-radius: 12px; overflow: hidden; background: var(--mesa); color: var(--tinta); box-shadow: var(--sombra-menu); }
+  #vista-previa[open] { display: flex; flex-direction: column; }
+  #vista-previa::backdrop { background: rgba(11, 33, 64, .45); }
+  .cabeza-vista { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--papel); border-bottom: 1px solid var(--borde-tarjeta); }
+  .cabeza-vista strong { font-size: 16px; font-weight: 600; }
+  #vp-estado { flex: 1; min-width: 0; color: var(--suave); }
+  .cabeza-vista button { background: var(--papel); color: var(--tinta); border: 1px solid var(--etiqueta); border-radius: 6px; padding: 6px 12px; white-space: nowrap; }
+  .cabeza-vista button:hover { background: var(--boton-hover); }
+  #vp-descargar { background: var(--acento); color: #fff; border-color: var(--acento); font-weight: 600; }
+  #vp-descargar:hover { background: var(--acento-hover); }
+  .cabeza-vista :focus-visible { outline: 2px solid var(--marino); outline-offset: 2px; }
+  #vp-paginas { flex: 1; min-height: 0; overflow: auto; padding: 4px 14px 14px; display: grid; gap: 12px; justify-items: center; align-content: start; }
+
+  /* Hojas de un anexo */
+  #mosaico { height: 100%; display: flex; flex-direction: column; padding: 4px 14px 12px 8px; }
+  .cabeza-mosaico { display: flex; align-items: center; gap: 8px; padding-bottom: 8px; }
+  .titulos-mosaico { flex: 1; min-width: 0; display: grid; }
+  #mosaico-titulo { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #mosaico-detalle { color: var(--suave); font-size: 12.5px; }
+  .cabeza-mosaico button { background: var(--papel); color: var(--tinta); border: 1px solid var(--etiqueta); border-radius: 6px; padding: 5px 10px; white-space: nowrap; }
+  .cabeza-mosaico button:hover { background: var(--boton-hover); }
+  #mosaico-verificar[aria-pressed="true"] { background: var(--acento); border-color: var(--acento); color: #fff; font-weight: 600; }
+  .cabeza-mosaico :focus-visible, .pie-celda :focus-visible { outline: 2px solid var(--marino); outline-offset: 2px; }
+  #volver-mosaico:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+  #rejilla { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; align-content: start; }
+  .marco { display: block; width: 100%; aspect-ratio: 8.5 / 11; padding: 0; border: 0; border-radius: 6px; overflow: hidden; background: #fff; box-shadow: var(--sombra-hoja); cursor: zoom-in; }
+  .marco canvas { display: block; width: 100%; height: 100%; object-fit: contain; box-shadow: none; }
+  .marco:hover canvas { transform: scale(3); }
+  .marco:focus-visible { outline: 2px solid var(--marino); outline-offset: 2px; }
+  .pie-celda { display: flex; justify-content: space-between; align-items: center; padding: 3px 1px; font-size: 12.5px; }
+  .girar { background: transparent; color: var(--marino); border: 0; text-decoration: underline; padding: 0; }
+
+  @media (max-width: 1000px) {
+    :root { --columnas: minmax(0, 1fr); }
+    .app { height: auto; grid-template-rows: auto; }
+    .barra-ficha, .controles { flex-wrap: wrap; }
+    .ficha { padding: 4px 8px 8px; }
+    .hoja { overflow: visible; }
+    .fila { grid-template-columns: minmax(0, 1fr) 30px 30px 34px 110px; }
+    #visor { height: 80vh; padding: 8px; }
+    .vacio { aspect-ratio: auto; }
+  }
+  @media (prefers-reduced-motion: reduce) { #avance-barra { transition: none; } .marca[aria-pressed="true"] { animation: none; } }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header class="barra">
+    <div class="barra-ficha">
+      <img class="logo-app" src="iconos/icon-192.png" alt="SIVEA" title="SIVEA · Sistema Inteligente de Verificación Ambiental" width="30" height="30">
+      <select id="tipo-ficha" aria-label="Lista de verificación a usar" title="Lista de verificación a usar">
+        <option value="esia-067-2005">Ciudad y Bahía (IA-067-2005)</option>
+        <option value="deia-166-2018">Arraiján - La Chorrera (DEIA-IA-166-2018)</option>
+        <option value="mensual-r-pa03-20">Mensual (R-PA03-20)</option>
+      </select>
+      <label class="boton"><span id="etiqueta-archivo">Elegir informe</span><input id="archivo" class="oculto" type="file" accept="application/pdf" aria-label="Elegir informe en PDF"></label>
+      <span id="nombre-informe"></span>
+      <span id="avance"></span>
+      <button id="siguiente-pendiente" type="button" disabled>Siguiente sin revisar</button>
+      <div class="pista"><div id="avance-barra"></div></div>
+    </div>
+    <div class="controles" id="controles" inert>
+      <div class="grupo">
+        <button id="previa" type="button">Anterior</button>
+        <button id="siguiente" type="button">Siguiente</button>
+      </div>
+      <label>Página <input id="pagina" type="number" min="1" step="1" value="1"></label>
+      <span>de <span id="total">–</span></span>
+      <div class="grupo">
+        <button id="zoom-menos" type="button" aria-label="Alejar">−</button>
+        <button id="zoom-ajustar" type="button">Ajustar</button>
+        <button id="zoom-mas" type="button" aria-label="Acercar">+</button>
+        <button id="girar" type="button">Girar</button>
+      </div>
+      <button id="volver-mosaico" type="button" hidden>Volver a las hojas</button>
+      <select id="ir-anexo" disabled aria-label="Ir a un anexo"><option value="">Ir a un anexo</option></select>
+      <div class="pista"><div id="lectura-barra"></div></div>
+    </div>
+  </header>
+  <section class="ficha" aria-label="Lista de verificación">
+    <div class="hoja-ficha">
+      <div class="hoja" id="hoja" inert>
+        <div id="cab-semestral">
+        <div class="membrete">
+          <img id="logo" alt="Programa Saneamiento de Panamá">
+          <div>Programa Saneamiento de Panamá<br>Sección SocioAmbiental</div>
+          <span></span>
+        </div>
+        <div class="titulo-lista" id="titulo-lista"></div>
+        <div class="dato"><label for="dato-proyecto">Proyecto o Contrato:</label><input id="dato-proyecto" maxlength="300"></div>
+        <div class="dato"><label for="dato-contratista">Contratista:</label><input id="dato-contratista" maxlength="300"></div>
+        <div class="dato"><label for="dato-periodo">Periodo:</label><input id="dato-periodo" maxlength="300"></div>
+        <div class="dato"><label for="dato-revisadoPor">Revisado por:</label><input id="dato-revisadoPor" maxlength="300"></div>
+        <div class="dato"><label for="dato-fecha">Fecha:</label><input id="dato-fecha" type="date"></div>
+        </div>
+        <div id="cab-mensual" hidden>
+          <div class="membrete membrete-m">
+            <img id="logo-m" alt="Programa Saneamiento de Panamá">
+            <div>PROCEDIMIENTO ESPECIFICO SOCIO AMBIENTAL<br><span class="subtitulo-m">Lista de Verificación de la Gestión Ambiental Mensual Contratista</span></div>
+            <div class="codigo-m">Código: R-PA03-20<br>Edición: 0<br>Vigencia: 2025</div>
+          </div>
+          <div class="dato"><label for="m-contratista">Contratista:</label><input id="m-contratista" maxlength="300"></div>
+          <div class="dato"><label for="m-fecha">Fecha:</label><input id="m-fecha" type="date"></div>
+          <div class="dato"><label for="m-proyecto">Proyecto:</label><input id="m-proyecto" maxlength="300"></div>
+          <div class="dato"><label for="m-comentario">Comentario:</label><input id="m-comentario" maxlength="300"></div>
+          <div class="dato"><label for="m-frente">Frente de trabajo:</label><input id="m-frente" maxlength="300"></div>
+          <div class="dato"><label for="m-fisico">% Físico de obra:</label><input id="m-fisico" maxlength="300"></div>
+          <div class="dato"><span>Tipo de Verificación: <span class="normal">Mensual [√]</span></span></div>
+        </div>
+        <div id="secciones"></div>
+        <div id="cierre-semestral">
+        <div class="cierre obs-general"><label for="observaciones">Observaciones</label><textarea id="observaciones" maxlength="20000"></textarea></div>
+        <div class="cierre final"><label for="informe-final">INFORME FINAL DE CIERRE</label><textarea id="informe-final" maxlength="20000"></textarea></div>
+        </div>
+        <div id="cierre-mensual" hidden>
+          <div class="cierre obs-general"><label for="m-otros">Otros</label><textarea id="m-otros" maxlength="2000"></textarea></div>
+          <div class="dato"><label for="m-evaluadoPor">Evaluado por:</label><input id="m-evaluadoPor" maxlength="300"></div>
+          <div class="dato"><label for="m-aprobadoPor">Aprobado por:</label><input id="m-aprobadoPor" maxlength="300"></div>
+        </div>
+      </div>
+      <div class="pie-ficha">
+        <div class="estados">
+          <p id="estado" role="status">Tus respuestas se guardan en este equipo.</p>
+        </div>
+        <details class="mas" id="mas">
+          <summary>Más opciones</summary>
+          <div class="menu-mas">
+            <button id="guardar-copia" type="button" disabled>Guardar copia del avance</button>
+            <button id="cargar-copia" type="button" disabled>Cargar copia del avance</button>
+            <button id="reiniciar" class="peligro" type="button" disabled>Borrar respuestas</button>
+          </div>
+        </details>
+        <input id="archivo-copia" class="oculto" type="file" accept=".json,application/json" tabindex="-1" aria-label="Elegir copia de avance">
+        <button id="generar" type="button" disabled>Generar ficha PDF</button>
+      </div>
+    </div>
+    <div id="detalle" hidden>
+      <div id="detalle-evidencia"></div>
+      <p id="detalle-manual" class="nota" hidden>Editaste a mano la columna OBSERVACION. Si cambias los campos de abajo, se volverá a armar con ellos.</p>
+      <div id="detalle-referencia" hidden>
+        <div class="etiqueta-obs">
+          <strong>Dónde se confirma (opcional)</strong>
+          <button id="ref-agregar" type="button">Agregar otro lugar</button>
+        </div>
+        <div id="ref-lista"></div>
+      </div>
+      <div id="detalle-frases"></div>
+      <div>
+        <div class="etiqueta-obs">
+          <label for="detalle-obs">Observación de esta fila</label>
+          <button id="guardar-frase" type="button">Guardar como frase</button>
+        </div>
+        <textarea id="detalle-obs" rows="2" maxlength="1500"></textarea>
+      </div>
+    </div>
+  </section>
+  <section class="informe" aria-label="Informe semestral">
+    <div id="visor">
+      <div class="vacio" id="vacio">
+        <img class="marca-vacio" src="iconos/marca-sivea.jpg" alt="SIVEA, Sistema Inteligente de Verificación Ambiental" width="480" height="480">
+        <p id="vacio-titulo">Arrastra aquí el informe en PDF</p>
+        <ul id="vacio-avances" hidden></ul>
+        <span id="vacio-lista" class="vacio-lista"></span>
+        <label class="boton" for="archivo">Elegir informe</label>
+      </div>
+      <canvas id="lienzo" hidden></canvas>
+    </div>
+    <div id="mosaico" hidden>
+      <div class="cabeza-mosaico">
+        <div class="titulos-mosaico">
+          <strong id="mosaico-titulo"></strong>
+          <span id="mosaico-detalle"></span>
+        </div>
+        <button id="mosaico-girar" type="button">Girar todas</button>
+        <button id="mosaico-verificar" type="button" aria-pressed="false">Marcar como verificado</button>
+        <button id="mosaico-cerrar" type="button">Cerrar hojas</button>
+      </div>
+      <div id="rejilla"></div>
+    </div>
+  </section>
+</div>
+<dialog id="vista-previa" aria-label="Vista previa de la ficha">
+  <div class="cabeza-vista">
+    <strong>Vista previa</strong>
+    <span id="vp-estado"></span>
+    <button id="vp-volver" type="button">Volver a la ficha</button>
+    <button id="vp-descargar" type="button">Descargar PDF</button>
+  </div>
+  <div id="vp-paginas"></div>
+</dialog>
+<script src="vendor/jspdf.umd.min.js"></script>
+<script src="src/logo.js"></script>
+<script src="src/ficha.js"></script>
+<script src="src/puntaje.js"></script>
+<script src="src/ficha-mensual.js"></script>
+<script src="src/avance.js"></script>
+<script src="src/indice.js"></script>
+<script src="src/evidencia.js"></script>
+<script src="src/recursos.js"></script>
+<script src="src/lector.js"></script>
+<script src="src/mosaico.js"></script>
+<script src="src/revision.js"></script>
+<script src="src/instalar.js"></script>
+</body>
+</html>
