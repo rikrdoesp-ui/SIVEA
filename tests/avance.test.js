@@ -74,5 +74,16 @@ test('un estado en arreglo y un porcentaje hexadecimal o con exponente se descar
   assert.equal(a.respuestas['pma-01'].estado, '');
   assert.equal(a.porcentajeC, '');
   assert.equal(Avance.normalizar({ porcentajeC: '1e1' }, ids).porcentajeC, '');
+  // Copias viejas: valores diminutos escritos con exponente negativo.
+  assert.equal(Avance.normalizar({ porcentajeC: '1e-7' }, ids).porcentajeC, '0.0000001');
+  assert.equal(Avance.normalizar({ porcentajeC: 1e-7 }, ids).porcentajeC, '0.0000001');
+  assert.equal(Avance.normalizar({ porcentajeC: 100 }, ids).porcentajeC, '100');
+  assert.equal(Avance.normalizar({ porcentajeC: '100,1' }, ids).porcentajeC, '');
+  assert.equal(Avance.normalizar({ porcentajeC: Infinity }, ids).porcentajeC, '');
   assert.equal(Avance.normalizar({ porcentajeC: '94,5' }, ids).porcentajeC, '94.5');
+});
+
+test('los topes y campos vienen de las fichas, sin copias propias', () => {
+  assert.equal(Avance.MAX_LUGARES, require('../src/ficha.js').MAX_REFERENCIAS);
+  for (const c of require('../src/ficha-mensual.js').CAMPOS) assert.ok([...Avance.CAMPOS, ...Avance.CAMPOS_MENSUALES].includes(c), c);
 });

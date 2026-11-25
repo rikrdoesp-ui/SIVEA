@@ -130,6 +130,25 @@ test('porcentaje vacío no escribe 0% en la fila C y valores de tipo inesperado 
   assert.equal(reg.checks, 1);
 });
 
+test('la fecha se lee en un solo lugar y el mes debe estar entre 1 y 12', () => {
+  assert.deepEqual(FichaMensual.partesDeFecha('5/4/2026'), { dia: 5, mes: 4, anio: '2026' });
+  assert.equal(FichaMensual.partesDeFecha('22/13/2026'), null);
+  assert.equal(FichaMensual.partesDeFecha('22/00/2026'), null);
+  const nombre = (fecha) => FichaMensual.nombreDeArchivo({ mensual: true, proyecto: 'X Matasnillo', comentario: '', fecha });
+  assert.equal(nombre('22/04/2026'), 'LVM Matasnillo 04-26.pdf');
+  assert.equal(nombre('22/13/2026'), 'LVM Matasnillo.pdf');
+});
+
+test('nombreSeguro evita los nombres reservados de Windows', () => {
+  for (const n of ['CON', 'prn.pdf', 'Aux', 'NUL', 'COM1', 'lpt9.pdf', 'con.txt']) assert.match(FichaMensual.nombreSeguro(n, 'r.pdf'), /^_.*\.pdf$/, n);
+  assert.equal(FichaMensual.nombreSeguro('CONSORCIO', 'r.pdf'), 'CONSORCIO.pdf');
+  assert.equal(FichaMensual.nombreSeguro('COM10', 'r.pdf'), 'COM10.pdf');
+});
+
+test('un campo que no cabe en una línea se nombra en el error', () => {
+  assert.throws(() => generarConRegistro({ ...base(), frente: 'palabra '.repeat(35) }), /Frente de trabajo: no cabe en una línea/);
+});
+
 test('el comentario se propone con el mes de la fecha', () => {
   assert.equal(FichaMensual.comentarioDeFecha('22/04/2026'), 'Mensual ABRIL-26');
   assert.equal(FichaMensual.comentarioDeFecha('01/12/2027'), 'Mensual DICIEMBRE-27');

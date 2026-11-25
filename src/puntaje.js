@@ -10,10 +10,14 @@ const PuntajeMensual = (() => {
   function porcentaje(valor) {
     if (typeof valor !== 'number' && typeof valor !== 'string') return null;
     // Solo dígitos con coma o punto decimal: nada de "0x1F", "1e1" ni espacios en blanco.
-    if (typeof valor === 'string' && !/^\d+(?:[.,]\d+)?$/.test(valor.trim())) return null;
+    // Se admite el exponente negativo ("1e-7"): así escribía String(n) las copias viejas con valores diminutos.
+    if (typeof valor === 'string' && !/^\d+(?:[.,]\d+)?(?:e-\d+)?$/i.test(valor.trim())) return null;
     const n = typeof valor === 'number' ? valor : Number(valor.trim().replace(',', '.'));
     return Number.isFinite(n) && n >= 0 && n <= 100 ? n : null;
   }
+
+  /** Número a texto decimal sin exponente (String(1e-7) daría "1e-7", que luego no se reconoce). */
+  const aTexto = (n) => n.toLocaleString('en-US', { useGrouping: false, maximumFractionDigits: 20 });
 
   /** Redondeo como el del Excel (mitades hacia arriba); el épsilon evita 42.4999… por coma flotante. */
   const entero = (x) => Math.round(x + 1e-9);
@@ -42,7 +46,7 @@ const PuntajeMensual = (() => {
     return { secciones, total };
   }
 
-  return { calcular, entero, porcentaje };
+  return { calcular, entero, porcentaje, aTexto };
 })();
 
 if (typeof module !== 'undefined') module.exports = PuntajeMensual;

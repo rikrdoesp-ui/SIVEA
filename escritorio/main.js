@@ -1,13 +1,21 @@
 'use strict';
-const { app, BrowserWindow, Menu, session } = require('electron');
+const { app, BrowserWindow, Menu, dialog, session } = require('electron');
 const path = require('node:path');
+const { pathToFileURL } = require('node:url');
 
 const TITULO = 'SIVEA · Sistema Inteligente de Verificación Ambiental';
 const INDEX = path.join(__dirname, 'app', 'index.html');
 const desarrollo = !app.isPackaged;
 
-// Solo file:, data: y blob: (el visor de PDF usa blob:). En desarrollo se deja pasar devtools:.
-const permitida = (url) => /^(file|data|blob):/i.test(url) || (desarrollo && /^devtools:/i.test(url));
+const INDEX_URL = pathToFileURL(INDEX).href;
+
+// De file: solo el index de la app (con cualquier #hash), no otros archivos del disco.
+// data: y blob: se dejan pasar (el visor de PDF usa blob:). En desarrollo también devtools:.
+const permitida = (url) => {
+  if (/^(data|blob):/i.test(url)) return true;
+  if (/^file:/i.test(url)) return url.split(/[?#]/)[0].toLowerCase() === INDEX_URL.toLowerCase();
+  return desarrollo && /^devtools:/i.test(url);
+};
 
 function crearVentana() {
   const ventana = new BrowserWindow({
@@ -21,11 +29,17 @@ function crearVentana() {
   });
   // El título lo manda la ventana, no el <title> de la página.
   ventana.on('page-title-updated', (e) => e.preventDefault());
-  ventana.webContents.on('will-navigate', (e, url) => {
+  const sinNavegar = (e, url) => {
     if (url !== ventana.webContents.getURL()) e.preventDefault();
-  });
+  };
+  ventana.webContents.on('will-navigate', sinNavegar);
+  ventana.webContents.on('will-redirect', sinNavegar);
+  ventana.webContents.on('will-attach-webview', (e) => e.preventDefault());
   ventana.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
-  ventana.loadFile(INDEX);
+  ventana.loadFile(INDEX).catch((e) => {
+    dialog.showErrorBox('SIVEA', `No se pudo abrir la aplicación: ${e.message}`);
+    app.quit();
+  });
   return ventana;
 }
 

@@ -113,6 +113,8 @@ const Mosaico = (() => {
     ui.mosaico.hidden = true;
     ui.visor.hidden = false;
     abierto = null;
+    // Con el mosaico abierto el visor medía 0 y pudo quedar dibujado a otro ancho: se redibuja.
+    Lector.irA(Lector.pagina());
   }
 
   /** opciones: { verificado, alVerificar(valor), alElegirPagina(pagina), enfocarPagina } */

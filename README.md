@@ -12,6 +12,8 @@ Listas incluidas:
 
 Todo ocurre en el navegador del revisor. Los informes no se suben a ningún servidor y la página no tiene permiso para conectarse a internet (`connect-src 'none'`). El avance se guarda en el propio equipo, y se puede llevar a otro con "Guardar copia del avance".
 
+El almacenamiento local (localStorage, caché del service worker) pertenece al origen `rikrdoesp-ui.github.io`, que GitHub Pages comparte con los demás repositorios de la cuenta. Cualquier página publicada ahí podría leer el avance guardado por esta app. En el instalador de Windows el avance queda en el perfil de la app, sin ese riesgo.
+
 ## Uso
 
 Abre la app publicada en GitHub Pages e instálala desde el navegador (Chrome o Edge: "Instalar SIVEA"). Después funciona sin conexión. También se puede abrir `docs/index.html` con doble clic.
@@ -21,7 +23,7 @@ Abre la app publicada en GitHub Pages e instálala desde el navegador (Chrome o 
 ```bash
 node --test tests/*.test.js     # pruebas
 node tools/empaquetar.js        # genera docs/ (un solo HTML, service worker, manifiesto e iconos)
-node .claude/serve.mjs 8093     # servidor local de desarrollo
+node tools/servir.mjs 8093     # servidor local de desarrollo
 ```
 
 Los iconos se generan con `uv run --no-project --with pillow python tools/iconos.py <icono> [<marca>]`.
@@ -30,7 +32,7 @@ Componentes de terceros: pdf.js (Apache-2.0) y jsPDF (MIT). Ver `vendor/PROCEDEN
 
 ## Instalador para Windows
 
-`SIVEA-Setup.exe` instala SIVEA como programa de escritorio (Electron, sin navegador), con su icono en el menú Inicio y en el escritorio. Es la misma app de `docs/index.html`, con las mismas restricciones: sin red, ventana que no navega a otras páginas y sin permisos de cámara, ubicación ni similares. El avance se guarda en el perfil de la app instalada, separado del que tenga el navegador; para pasarlo de uno a otro se usa "Guardar copia del avance".
+`SIVEA-Setup.exe` instala SIVEA como programa de escritorio (Electron, sin navegador), con su icono en el menú Inicio y en el escritorio. Es la misma app de `docs/index.html`, con las mismas restricciones: sin red, ventana que no navega a otras páginas y sin permisos de cámara, ubicación ni similares. El ejecutable lleva desactivados `ELECTRON_RUN_AS_NODE`, las opciones de inspección de Node y `NODE_OPTIONS`, y solo carga el código desde `app.asar` con su integridad validada (`electronFuses` en `escritorio/package.json`). El avance se guarda en el perfil de la app instalada, separado del que tenga el navegador; para pasarlo de uno a otro se usa "Guardar copia del avance".
 
 ```bash
 cd escritorio

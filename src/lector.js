@@ -81,7 +81,8 @@ const Lector = (() => {
     capaTexto().replaceChildren();
   }
 
-  const capaTexto = () => ui.lienzo.nextElementSibling;
+  // Mejor pasar `capa` explícita; nextElementSibling queda como respaldo.
+  const capaTexto = () => ui.capa || ui.lienzo.nextElementSibling;
 
   function cancelarTexto() {
     if (tareaTexto) tareaTexto.cancel();
@@ -114,6 +115,8 @@ const Lector = (() => {
   async function dibujarPagina(documento, pedida) {
     const vigente = () => documento === doc && pedida === paginaActual;
     if (!vigente()) return;
+    // Con el mosaico a la vista el visor está oculto y no tiene tamaño: no hay nada que dibujar.
+    if (ui.visor.clientWidth === 0) return;
     const pagina = await documento.getPage(pedida);
     if (!vigente()) return;
     const rotation = (pagina.rotate + giro) % 360;
@@ -224,6 +227,8 @@ const Lector = (() => {
     estado = { etapa: 'abriendo', archivoBytes: archivo.size };
     errorDibujo = null;
     zoom = 1;
+    giro = 0;
+    paginaActual = 1;
     avisos.progreso(0, 'Abriendo el informe');
     await cerrarDocumento();
     if (actual !== sesion) return;
@@ -268,8 +273,11 @@ const Lector = (() => {
     }
   }
 
+  let sesionPrevia = 0;
   /** Dibuja un PDF ya generado (la ficha) dentro de un contenedor, página por página. */
   async function previsualizar(bytes, contenedor, anchoCss) {
+    sesionPrevia += 1;
+    const miSesion = sesionPrevia;
     await cargarBiblioteca();
     const tarea = pdfjs.getDocument({
       data: bytes,
@@ -282,15 +290,19 @@ const Lector = (() => {
     });
     try {
       const documento = await tarea.promise;
+      if (miSesion !== sesionPrevia) return;
       const ppp = Math.min(window.devicePixelRatio || 1, 2);
       contenedor.replaceChildren();
-      for (let n = 1; n <= documento.numPages; n += 1) {
+      for (let n = 1; n <= documento.numPages && miSesion === sesionPrevia; n += 1) {
         const pagina = await documento.getPage(n);
+        if (miSesion !== sesionPrevia) { pagina.cleanup(); break; }
         const vista = pagina.getViewport({ scale: (anchoCss * ppp) / pagina.getViewport({ scale: 1 }).width });
         const lienzo = document.createElement('canvas');
         lienzo.width = Math.floor(vista.width);
         lienzo.height = Math.floor(vista.height);
         lienzo.style.width = `${Math.floor(anchoCss)}px`;
+        lienzo.setAttribute('role', 'img');
+        lienzo.setAttribute('aria-label', `Página ${n} de la ficha`);
         contenedor.append(lienzo);
         await pagina.render({ canvas: lienzo, viewport: vista }).promise;
         pagina.cleanup();

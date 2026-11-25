@@ -32,9 +32,14 @@ const FichaSemestral = (() => {
   const SUSTITUTOS = { '≥': '>=', '≤': '<=', '₂': '2', '₃': '3', '\t': ' ', '\r': '' };
   const FUERA_DE_WINANSI = /[^\n\x20-\x7E\xA0-\xFF€‚ƒ„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ]/gu;
 
+  const sustituir = (texto) => texto.replace(/[≥≤₂₃\t\r]/g, (c) => SUSTITUTOS[c]);
+
+  /** Para texto sacado de un PDF ajeno: lo que la ficha no admite pasa a "?" en vez de bloquear la generación. */
+  const sanear = (valor) => sustituir(String(valor)).replace(FUERA_DE_WINANSI, '?');
+
   function limpiarTexto(valor, campo, limite) {
     if (typeof valor !== 'string') return '';
-    const texto = valor.replace(/[≥≤₂₃\t\r]/g, (c) => SUSTITUTOS[c]);
+    const texto = sustituir(valor);
     const invalidos = texto.match(FUERA_DE_WINANSI);
     if (invalidos) throw new Error(`${campo}: el PDF no admite estos caracteres: ${[...new Set(invalidos)].join(' ')}`);
     if (texto.length > limite) throw new Error(`${campo}: supera el límite de ${limite} caracteres`);
@@ -67,7 +72,7 @@ const FichaSemestral = (() => {
         .slice(0, MAX_REFERENCIAS)
         .map((ref) => ({
           titulo: limpiarTexto(ref.titulo, `Título de la referencia de «${fila}»`, LIMITE.dato),
-          pagina: typeof ref.pagina === 'string' ? ref.pagina.slice(0, 60) : '',
+          pagina: limpiarTexto(ref.pagina, `Página de la referencia de «${fila}»`, 60),
         }));
     }
     limpio.observaciones = limpiarParrafos(datos.observaciones, 'Observaciones');
@@ -75,9 +80,18 @@ const FichaSemestral = (() => {
     return limpio;
   }
 
+  // Un número o un rango con guion, guion largo o medio, o " a " ("25 a 30", "667–670").
+  const RANGO_PAGINAS = /^(\d{1,5})(?:\s*(?:[-–—]|a)\s*(\d{1,5}))?$/i;
+
+  /** "págs. 25-30, 40". Lo que no es número ni rango se deja como lo escribió el revisor. */
   function textoPaginas(pagina) {
-    const lista = (String(pagina || '').match(/\d{1,5}(?:\s*-\s*\d{1,5})?/g) || []).map((p) => p.replace(/\s+/g, ''));
-    if (!lista.length) return '';
+    const trozos = String(pagina || '').replace(/^\s*págs?\.?/i, '').split(/\s*[,;]\s*|\s+y\s+/).map((t) => t.trim()).filter(Boolean);
+    if (!trozos.length) return '';
+    const lista = trozos.map((t) => {
+      const m = RANGO_PAGINAS.exec(t);
+      return m ? (m[2] ? `${m[1]}-${m[2]}` : m[1]) : t;
+    });
+    if (!trozos.some((t) => RANGO_PAGINAS.test(t))) return lista.join(', ');
     return `${lista.length > 1 || lista[0].includes('-') ? 'págs.' : 'pág.'} ${lista.join(', ')}`;
   }
 
@@ -137,7 +151,10 @@ const FichaSemestral = (() => {
     const fila = (celdas, altoMinimo) => {
       const maximo = Math.max(...celdas.map((c) => lineas(c.texto, c.x1 - c.x0, c.bold, c.fs).length));
       const alto = maximo > 1 ? Math.max(altoMinimo, altoTexto(maximo)) : altoMinimo;
-      if (alto > medidas.limite - PAG.arriba) throw new Error('Una fila de la ficha no cabe en una página');
+      if (alto > medidas.limite - PAG.arriba) {
+        const cual = celdas.slice(0, 2).map((c) => c.texto).filter(Boolean).join(' ').slice(0, 60);
+        throw new Error(`La fila «${cual}» de la ficha no cabe en una página`);
+      }
       if (y + alto > medidas.limite) {
         nuevaPagina();
         const titulos = alSaltar;
@@ -276,7 +293,7 @@ const FichaSemestral = (() => {
     return doc;
   }
 
-  return { generar, textoObservacion, limpiarTexto, LIMITE, MAX_REFERENCIAS };
+  return { generar, textoObservacion, textoPaginas, limpiarTexto, sanear, LIMITE, MAX_REFERENCIAS };
 })();
 
 if (typeof module !== 'undefined') module.exports = FichaSemestral;

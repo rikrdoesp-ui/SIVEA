@@ -16,7 +16,7 @@
      Radios: tarjetas 10, controles 6, menús 8, diálogo 12, etiquetas y frases redondas. */
   :root {
     --papel: #fff; --tinta: #14243a; --suave: #5b6b7c; --marino: #1d5a96; --banda: #e8eef3;
-    --etiqueta: #c3ced8; --gris: #eef2f6; --rojo: #c62f3a; --mesa: #eef2f6; --borde-mesa: #9aa8b6;
+    --etiqueta: #c3ced8; --borde-campo: #7b8a99; --gris: #eef2f6; --rojo: #c62f3a; --mesa: #eef2f6; --borde-mesa: #9aa8b6;
     --linea: #d5dee6; --seleccion: #e9f3ee; --na: #5b6b7c;
     --acento: #267d43; --acento-hover: #1f6a38; --degradado: linear-gradient(90deg, #6cc24a, #2e7cd6);
     --barra: linear-gradient(100deg, #0b2140 0%, #0b2a48 55%, #0c3a4e 100%);
@@ -37,10 +37,12 @@
   .oculto { position: absolute; width: 1px; height: 1px; opacity: 0; }
 
   .app { display: grid; grid-template-columns: var(--columnas); grid-template-rows: auto minmax(0, 1fr); height: 100vh; }
+  main { grid-column: 1 / -1; display: grid; grid-template-columns: var(--columnas); min-height: 0; }
+  main > h1 { position: absolute; width: 1px; height: 1px; margin: 0; overflow: hidden; clip-path: inset(50%); }
 
   /* Una sola barra, alineada con las dos hojas */
   .barra { grid-column: 1 / -1; display: grid; grid-template-columns: var(--columnas); color: #fff; background: var(--barra); border-top: 3px solid transparent; border-image: var(--degradado) 1; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(11, 33, 64, .18); }
-  .barra-ficha, .controles { position: relative; display: flex; align-items: center; gap: 10px; min-width: 0; padding: 10px 14px; }
+  .barra-ficha, .controles { position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; min-width: 0; padding: 10px 14px; }
   .barra :focus-visible, .barra .boton:focus-within { outline: 2px solid #fff; outline-offset: 2px; }
   .vacio :focus-visible, .vacio .boton:focus-within { outline: 2px solid var(--marino); outline-offset: 2px; }
   .boton, .controles button, .controles select, .controles input, #siguiente-pendiente, #tipo-ficha {
@@ -48,7 +50,7 @@
   }
   .boton { cursor: pointer; }
   .boton:hover, .controles button:hover:enabled, #siguiente-pendiente:hover:enabled { background: var(--barra-hover); }
-  #nombre-informe { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #nombre-informe { flex: 1 1 6em; min-width: 6em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   #avance { white-space: nowrap; font-variant-numeric: tabular-nums; }
   .pista { position: absolute; left: 14px; right: 14px; bottom: 0; height: 3px; border-radius: 3px; background: var(--barra-hover); }
   #avance-barra, #lectura-barra { height: 100%; width: 0; background: var(--degradado); border-radius: 3px; }
@@ -73,6 +75,7 @@
   .dato { display: flex; align-items: baseline; gap: 6px; border-bottom: 1px solid var(--linea); padding: 1px 6px; font-weight: 700; font-size: 12.5px; }
   .dato label { white-space: nowrap; }
   .dato input { flex: 1; min-width: 0; border: 0; background: transparent; padding: 3px; font-weight: 400; }
+  .dato:focus-within { outline: 2px solid var(--marino); outline-offset: -2px; }
 
   /* Lista mensual */
   .membrete-m { grid-template-columns: 62px 1fr auto; gap: 8px; }
@@ -84,7 +87,7 @@
   .fila.total .col-obs { place-items: center start; padding: 3px 6px; }
   .texto-fijo { display: flex; align-items: center; padding: 4px 6px; min-height: 26px; }
   .pct-c { grid-column: 2 / 5; display: flex; align-items: center; justify-content: center; gap: 2px; padding: 0 2px; }
-  .pct-c input { width: 100%; min-width: 0; border: 1px solid var(--etiqueta); border-radius: 4px; padding: 2px; text-align: right; background: var(--papel); }
+  .pct-c input { width: 100%; min-width: 0; border: 1px solid var(--borde-campo); border-radius: 4px; padding: 2px; text-align: right; background: var(--papel); }
   .pct-c input[aria-invalid="true"] { border-color: var(--rojo); }
 
   .fila { display: grid; grid-template-columns: minmax(0, 1fr) 30px 30px 34px 190px; border-bottom: 1px solid var(--linea); }
@@ -105,9 +108,10 @@
   /* La marca es el gesto de la app: se imprime sobre la casilla, como un sello */
   .marca { border: 0; margin: 3px 2px; border-radius: 4px; background: transparent; padding: 0; font-size: 12px; color: var(--suave); transition: background-color .12s, color .12s; }
   .marca:hover { background: var(--banda); color: var(--tinta); }
+  .marca:focus-visible { outline-offset: 2px; }
   .marca[aria-pressed="true"] { color: #fff; font-weight: 700; animation: sello .13s ease-out; }
   .marca.si[aria-pressed="true"] { background: var(--acento); }
-  .marca.no[aria-pressed="true"] { background: transparent; color: var(--rojo); font-size: 13px; }
+  .marca.no[aria-pressed="true"] { background: transparent; color: var(--rojo); font-size: 13px; box-shadow: inset 0 0 0 1.5px currentColor; } /* 1.4.1: no solo el color */
   .marca.na[aria-pressed="true"] { background: var(--na); }
   @keyframes sello { from { transform: scale(1.35); } to { transform: scale(1); } }
   textarea.obs { display: block; width: 100%; min-height: 100%; padding: 4px; font-size: 12px; overflow-wrap: anywhere; border: 0; border-left: 1px solid var(--linea); border-radius: 0; background: transparent; resize: none; field-sizing: content; cursor: text; }
@@ -126,7 +130,7 @@
   .citar:hover, .chip:hover { background: var(--marino); color: #fff; }
   .paginas { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; }
   #detalle label { display: block; color: var(--suave); margin-bottom: 2px; }
-  textarea { width: 100%; resize: vertical; border: 1px solid var(--etiqueta); border-radius: 6px; background: var(--papel); padding: 6px 8px; }
+  textarea { width: 100%; resize: vertical; border: 1px solid var(--borde-campo); border-radius: 6px; background: var(--papel); padding: 6px 8px; }
 
   .cierre { display: grid; grid-template-columns: 108px minmax(0, 1fr); border-bottom: 1px solid var(--linea); }
   .cierre label { display: grid; place-items: center; padding: 6px; text-align: center; border-right: 1px solid var(--linea); }
@@ -194,19 +198,19 @@
   #guardar-frase:hover, #ref-agregar:hover, .pagina-actual:hover { text-decoration-color: currentColor; }
   #ref-agregar:disabled { text-decoration: none; }
   .campos-ref { display: grid; grid-template-columns: minmax(0, 1fr) 96px auto 28px; gap: 6px; align-items: end; margin-top: 4px; }
-  .campos-ref input { width: 100%; border: 1px solid var(--etiqueta); border-radius: 6px; background: var(--papel); padding: 4px 8px; }
+  .campos-ref input { width: 100%; border: 1px solid var(--borde-campo); border-radius: 6px; background: var(--papel); padding: 4px 8px; }
 
   /* Vista previa de la ficha antes de descargarla */
   #vista-previa { width: min(980px, 94vw); height: 94vh; max-height: none; padding: 0; border: 0; border-radius: 12px; overflow: hidden; background: var(--mesa); color: var(--tinta); box-shadow: var(--sombra-menu); }
   #vista-previa[open] { display: flex; flex-direction: column; }
   #vista-previa::backdrop { background: rgba(11, 33, 64, .45); }
-  .cabeza-vista { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--papel); border-bottom: 1px solid var(--borde-tarjeta); }
+  .cabeza-vista { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 10px 14px; background: var(--papel); border-bottom: 1px solid var(--borde-tarjeta); }
   .cabeza-vista strong { font-size: 16px; font-weight: 600; }
-  #vp-estado { flex: 1; min-width: 0; color: var(--suave); }
+  #vp-estado { flex: 1 1 12em; min-width: 12em; color: var(--suave); }
   .cabeza-vista button { background: var(--papel); color: var(--tinta); border: 1px solid var(--etiqueta); border-radius: 6px; padding: 6px 12px; white-space: nowrap; }
   .cabeza-vista button:hover { background: var(--boton-hover); }
   .vp-nombre { color: var(--suave); }
-  #vp-nombre { width: min(300px, 32vw); border: 1px solid var(--etiqueta); border-radius: 6px; padding: 5px 8px; background: var(--papel); }
+  #vp-nombre { width: min(300px, 32vw); border: 1px solid var(--borde-campo); border-radius: 6px; padding: 5px 8px; background: var(--papel); }
   #vp-descargar { background: var(--acento); color: #fff; border-color: var(--acento); font-weight: 600; }
   #vp-descargar:hover { background: var(--acento-hover); }
   .cabeza-vista :focus-visible { outline: 2px solid var(--marino); outline-offset: 2px; }
@@ -234,8 +238,8 @@
   @media (max-width: 1000px) {
     :root { --columnas: minmax(0, 1fr); }
     .app { height: auto; grid-template-rows: auto; }
-    .barra-ficha, .controles { flex-wrap: wrap; }
     .ficha { padding: 4px 8px 8px; }
+    .menu-mas { right: auto; left: 0; }
     .hoja { overflow: visible; }
     .fila { grid-template-columns: minmax(0, 1fr) 30px 30px 34px 110px; }
     #visor { height: 80vh; padding: 8px; }
@@ -278,6 +282,8 @@
       <div class="pista"><div id="lectura-barra"></div></div>
     </div>
   </header>
+  <main>
+  <h1>SIVEA, revisión de informe</h1>
   <section class="ficha" aria-label="Lista de verificación">
     <div class="hoja-ficha">
       <div class="hoja" id="hoja" inert>
@@ -304,8 +310,8 @@
           <div class="dato"><label for="m-fecha">Fecha:</label><input id="m-fecha" type="date"></div>
           <div class="dato"><label for="m-proyecto">Proyecto:</label><input id="m-proyecto" maxlength="300"></div>
           <div class="dato"><label for="m-comentario">Comentario:</label><input id="m-comentario" maxlength="300"></div>
-          <div class="dato"><label for="m-frente">Frente de trabajo:</label><input id="m-frente" maxlength="300"></div>
-          <div class="dato"><label for="m-fisico">% Físico de obra:</label><input id="m-fisico" maxlength="300"></div>
+          <div class="dato"><label for="m-frente">Frente de trabajo:</label><input id="m-frente" maxlength="65"></div>
+          <div class="dato"><label for="m-fisico">% Físico de obra:</label><input id="m-fisico" maxlength="30"></div>
           <div class="dato"><span>Tipo de Verificación: <span class="normal">Mensual [√]</span></span></div>
         </div>
         <div id="secciones"></div>
@@ -356,7 +362,7 @@
     </div>
   </section>
   <section class="informe" aria-label="Informe semestral">
-    <div id="visor">
+    <div id="visor" role="region" tabindex="0" aria-label="Informe, página actual">
       <div class="vacio" id="vacio">
         <img class="marca-vacio" src="iconos/marca-sivea.jpg" alt="SIVEA, Sistema Inteligente de Verificación Ambiental" width="480" height="480">
         <p id="vacio-titulo">Arrastra aquí el informe en PDF</p>
@@ -364,7 +370,7 @@
         <span id="vacio-lista" class="vacio-lista"></span>
         <label class="boton" for="archivo">Elegir informe</label>
       </div>
-      <div id="pagina-visor"><canvas id="lienzo" hidden></canvas><div class="textLayer" id="capa-texto"></div></div>
+      <div id="pagina-visor"><canvas id="lienzo" hidden aria-hidden="true"></canvas><div class="textLayer" id="capa-texto"></div></div>
     </div>
     <div id="mosaico" hidden>
       <div class="cabeza-mosaico">
@@ -379,17 +385,18 @@
       <div id="rejilla"></div>
     </div>
   </section>
+  </main>
 </div>
 <dialog id="vista-previa" aria-label="Vista previa de la ficha">
   <div class="cabeza-vista">
     <strong>Vista previa</strong>
-    <span id="vp-estado"></span>
+    <span id="vp-estado" aria-live="polite"></span>
     <label class="vp-nombre" for="vp-nombre">Archivo</label>
     <input id="vp-nombre" maxlength="150" spellcheck="false">
     <button id="vp-volver" type="button">Volver a la ficha</button>
     <button id="vp-descargar" type="button">Descargar PDF</button>
   </div>
-  <div id="vp-paginas"></div>
+  <div id="vp-paginas" role="region" tabindex="0" aria-label="Páginas de la vista previa"></div>
 </dialog>
 <script src="vendor/jspdf.umd.min.js"></script>
 <script src="src/logo.js"></script>

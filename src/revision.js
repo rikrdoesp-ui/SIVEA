@@ -29,7 +29,7 @@
   const CLAVE_FIRMAS = 'semestrales.firmas';
   // Sin nombres en el código publicado: la primera vez se escriben y luego se recuerdan en el equipo.
   const FIRMAS_POR_DEFECTO = { evaluadoPor: '', aprobadoPor: '' };
-  const CAMPOS_MENSUAL = ['contratista', 'proyecto', 'fecha', 'comentario', 'frente', 'fisico', 'evaluadoPor', 'aprobadoPor'];
+  const CAMPOS_MENSUAL = FichaMensual.CAMPOS; // una sola lista: la que usa el PDF
   const totales = {};
   const normalizar = (guardado) => Avance.normalizar(guardado, ids);
 
@@ -59,8 +59,9 @@
 
   /** El selector usa año-mes-día; la ficha, día/mes/año. */
   function fechaParaSelector(fecha) {
-    const m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(fecha || '');
-    return m ? `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}` : '';
+    const f = FichaMensual.partesDeFecha(fecha);
+    const dos = (n) => String(n).padStart(2, '0');
+    return f ? `${f.anio}-${dos(f.mes)}-${dos(f.dia)}` : '';
   }
 
   function fechaDeSelector(valor) {
@@ -93,16 +94,18 @@
   /** Los avances guardados en este navegador, del más reciente al más antiguo. */
   function avancesGuardados() {
     const lista = [];
-    try {
-      for (let i = 0; i < localStorage.length; i += 1) {
+    let total = 0;
+    try { total = localStorage.length; } catch { /* sin almacenamiento disponible */ }
+    for (let i = 0; i < total; i += 1) {
+      try { // una clave dañada no esconde las demás
         const llave = localStorage.key(i);
         if (!llave.startsWith(`${PREFIJO}:`)) continue;
         const m = /:(.*):\d+$/.exec(llave.slice(PREFIJO.length));
         if (!m) continue;
         const guardada = normalizar(JSON.parse(localStorage.getItem(llave)));
         lista.push({ llave, nombre: guardada.nombre || m[1], ficha: guardada, hechas: contarHechas(guardada) });
-      }
-    } catch { /* sin almacenamiento disponible */ }
+      } catch { /* esta clave no se pudo leer */ }
+    }
     return lista.filter((a) => a.hechas > 0).sort((a, b) => b.ficha.actualizado - a.ficha.actualizado);
   }
 
@@ -121,12 +124,18 @@
     nombreArchivo = ultimo.nombre;
     for (const boton of ACCIONES_DE_AVANCE) $(boton).disabled = false;
     $('hoja').inert = false;
-    $('nombre-informe').textContent = ultimo.nombre;
+    ponerNombre(ultimo.nombre);
     $('vacio-titulo').textContent = `Vuelve a elegir ${ultimo.nombre} para continuar`;
     const lista = $('vacio-avances');
     lista.replaceChildren(...avances.slice(0, 5).map((a) => crear('li', '', `${a.nombre}: ${a.hechas} de ${TOTAL} revisados`)));
     lista.hidden = false;
     avisar(`Tu avance sigue guardado: ${ultimo.hechas} de ${TOTAL} revisados. Puedes seguir marcando; elige el mismo PDF para ver la evidencia.`);
+  }
+
+  // El título deja ver el nombre completo cuando la barra lo recorta.
+  function ponerNombre(nombre) {
+    $('nombre-informe').textContent = nombre;
+    $('nombre-informe').title = nombre;
   }
 
   function guardarCopia() {
@@ -193,6 +202,8 @@
     guardar();
   }
 
+  const nombreFila = (id) => porId.get(id).codigo || porId.get(id).texto.slice(0, 60);
+
   function responder(id, estado) {
     const r = respuesta(id);
     r.estado = r.estado === estado ? '' : estado;
@@ -200,6 +211,7 @@
     actualizarAvance();
     guardar();
     if (id === seleccionado) pintarDetalle(id);
+    avisar(`${nombreFila(id)}: ${r.estado ? `marcado ${ESTADOS[r.estado]}` : 'sin marca'}`);
   }
 
   // --- Referencia de dónde se confirma un SI -----------------------------------------
@@ -213,6 +225,13 @@
     const presentes = paginas.split(/[\s,;]+/).filter(Boolean);
     return presentes.includes(pagina) ? paginas : [...presentes, pagina].join(', ');
   };
+
+  /** Sin PDF abierto no hay página que tomar. */
+  function hayInforme() {
+    if (Lector.estado().etapa === 'listo') return true;
+    avisar('Abre el informe para tomar la página.', true);
+    return false;
+  }
 
   function refrescarReferencia(id) {
     pintarReferencia(id);
@@ -234,7 +253,25 @@
     return caja;
   }
 
-  function pintarReferencia(id) {
+  /** Al repintar el panel de detalle el control con foco se destruye: se devuelve el foco al equivalente. */
+  function conservarFoco(pintar) {
+    const detalle = $('detalle');
+    const antes = document.activeElement;
+    if (!detalle.contains(antes)) { pintar(); return; }
+    const controles = () => [...detalle.querySelectorAll('button, input, textarea')];
+    const indice = controles().indexOf(antes);
+    pintar();
+    if (antes.isConnected && !antes.disabled) return;
+    const nuevo = controles()[indice];
+    const destino = nuevo && !nuevo.disabled ? nuevo : $('detalle-obs');
+    destino.focus({ preventScroll: true });
+  }
+
+  const pintarReferencia = (id) => conservarFoco(() => pintarReferenciaDe(id));
+  const pintarFrases = (id) => conservarFoco(() => pintarFrasesDe(id));
+  const pintarDetalle = (id) => conservarFoco(() => pintarDetalleDe(id));
+
+  function pintarReferenciaDe(id) {
     const r = respuesta(id);
     $('detalle-referencia').hidden = r.estado !== 'si';
     const lista = $('ref-lista');
@@ -249,7 +286,13 @@
       );
       const actual = crear('button', 'pagina-actual', 'Página actual');
       actual.type = 'button';
-      actual.addEventListener('click', () => { lugar.pagina = sumarPagina(lugar.pagina, String(Lector.pagina())); delete r.texto; refrescarReferencia(id); });
+      actual.addEventListener('click', () => {
+        if (!hayInforme()) return;
+        lugar.pagina = sumarPagina(lugar.pagina, String(Lector.pagina()));
+        delete r.texto;
+        refrescarReferencia(id);
+        avisar(`Página ${Lector.pagina()} agregada a la referencia.`);
+      });
       const quitar = crear('button', 'quitar', '×');
       quitar.type = 'button';
       quitar.setAttribute('aria-label', 'Quitar este lugar');
@@ -277,6 +320,7 @@
       else { avisar(`Cada fila admite hasta ${MAX_LUGARES} lugares.`, true); return; }
     }
     refrescarReferencia(id);
+    avisar(`Referencia agregada: ${titulo}, pág. ${pagina}.`);
   }
 
   // --- Frases para las observaciones -------------------------------------------------
@@ -312,6 +356,7 @@
       actualizarFila(id);
       guardar();
       pintarFrases(id);
+      avisar('Frase agregada a la fila.');
       return;
     }
     if (tieneFrase(r.obs, frase)) return;
@@ -322,6 +367,7 @@
     actualizarFila(id);
     guardar();
     pintarFrases(id);
+    avisar('Frase agregada a la fila.');
   }
 
   function agregarAObservaciones(id, frase) {
@@ -343,7 +389,7 @@
     return boton;
   }
 
-  function pintarFrases(id) {
+  function pintarFrasesDe(id) {
     const caja = $('detalle-frases');
     caja.replaceChildren();
     const r = respuesta(id);
@@ -430,11 +476,14 @@
     const cita = `Anexo ${anexo.numero}`;
     // "Anexo 9.B" no debe darse por citado cuando ya está "Anexo 9.B.1".
     if (new RegExp(`\\b${cita.replace(/\./g, '\\.')}(?!\\w|\\.\\w)`).test(r.obs)) return;
-    r.obs = r.obs ? `${r.obs} - ${cita}` : cita;
+    const nuevo = r.obs ? `${r.obs} - ${cita}` : cita;
+    if (nuevo.length > 1500) { avisar('La observación de esta fila ya está en su límite de 1500 caracteres.', true); return; }
+    r.obs = nuevo;
     delete r.texto;
     $('detalle-obs').value = r.obs;
     actualizarFila(id);
     guardar();
+    avisar(`${cita} citado en la observación.`);
   }
 
   function paginaInicial(ev) {
@@ -443,7 +492,7 @@
     return anexo ? anexo.pagina : ev.paginas[0] || null;
   }
 
-  function pintarDetalle(id) {
+  function pintarDetalleDe(id) {
     const ev = evidencias && evidencias[id];
     const lista = $('detalle-evidencia');
     lista.replaceChildren();
@@ -500,11 +549,13 @@
       const linea = crear('div', 'paginas');
       const usar = crear('button', 'citar', 'Usar la página que estoy viendo');
       usar.type = 'button';
-      usar.addEventListener('click', () => usarReferencia(id, 'Cuerpo del informe', String(Lector.pagina())));
+      usar.addEventListener('click', () => { if (hayInforme()) usarReferencia(id, 'Cuerpo del informe', String(Lector.pagina())); });
       linea.append(usar);
       lista.append(linea);
     }
-    if (!ev.anexos.length && !ev.paginas.length) {
+    if (ev.sinRegla) {
+      lista.append(crear('p', 'nota', 'Esta fila no tiene búsqueda automática: revísala en el informe.'));
+    } else if (!ev.anexos.length && !ev.paginas.length) {
       lista.append(crear('p', 'nota', 'No se encontró en el texto del informe ni en los títulos de sus anexos. Si puede estar en una hoja escaneada, ábrela desde "Ir a un anexo".'));
     }
   }
@@ -543,7 +594,10 @@
       contenedor.append(bloque);
       if (seccion.columnas || mensual) {
         const cabecera = crear('div', 'fila cabecera');
-        cabecera.append(crear('div', 'titulo-seccion', seccion.titulo));
+        const titulo = crear('div', 'titulo-seccion', seccion.titulo);
+        titulo.setAttribute('role', 'heading');
+        titulo.setAttribute('aria-level', '2');
+        cabecera.append(titulo);
         for (const t of ['SI', 'NO', 'N/A']) cabecera.append(crear('div', 'col', seccion.numerico ? '' : t));
         cabecera.append(crear('div', 'col-obs', seccion.numerico ? '' : 'OBSERVACION'));
         bloque.append(cabecera);
@@ -611,7 +665,8 @@
       const n = PuntajeMensual.porcentaje(entrada.value);
       const invalido = entrada.value !== '' && n === null;
       entrada.setAttribute('aria-invalid', String(invalido));
-      ficha.porcentajeC = n === null ? '' : String(n);
+      // Sin notación exponencial (1e-7): la ficha y el puntaje esperan decimales.
+      ficha.porcentajeC = n === null ? '' : PuntajeMensual.aTexto(n);
       if (invalido) avisar('El porcentaje debe ser un número de 0 a 100.', true);
       actualizarAvance();
       guardar();
@@ -687,7 +742,7 @@
   }
 
   Lector.iniciar(
-    { lienzo: $('lienzo'), visor: $('visor'), pagina: $('pagina'), total: $('total') },
+    { lienzo: $('lienzo'), capa: $('capa-texto'), visor: $('visor'), pagina: $('pagina'), total: $('total') },
     {
       estado: avisar,
       progreso(fraccion, texto) {
@@ -755,7 +810,7 @@
     $('volver-mosaico').hidden = true;
     $('hoja').inert = false;
     $('controles').inert = false;
-    $('nombre-informe').textContent = archivo.name;
+    ponerNombre(archivo.name);
     $('vacio').hidden = true;
     $('lienzo').hidden = false;
     pintarFicha();
@@ -846,6 +901,8 @@
     });
     $('guardar-frase').addEventListener('click', guardarFrase);
     // El menú "Más opciones" se cierra al elegir una acción o con Escape.
+    // El foco salió del menú con el teclado: se cierra (sin relatedTarget no hay a dónde fue; eso lo cubre pointerdown).
+    $('mas').addEventListener('focusout', (e) => { if ($('mas').open && e.relatedTarget && !$('mas').contains(e.relatedTarget)) $('mas').open = false; });
     $('mas').addEventListener('click', (e) => { if (e.target.closest('.menu-mas button')) $('mas').open = false; });
     // Un clic fuera del menú lo cierra, también sobre la hoja inactiva o una opción deshabilitada.
     document.addEventListener('pointerdown', (e) => { if ($('mas').open && !e.target.closest('.menu-mas button:enabled, #mas > summary')) $('mas').open = false; });
@@ -872,6 +929,7 @@
     $('dato-fecha').addEventListener('click', () => {
       try { $('dato-fecha').showPicker(); } catch { /* el navegador ya muestra su propio control */ }
     });
+    $('vista-previa').addEventListener('close', () => $('vp-paginas').replaceChildren()); // libera los lienzos
     $('vp-volver').addEventListener('click', () => $('vista-previa').close());
     $('vp-descargar').addEventListener('click', () => {
       if (!fichaPendiente) return;
@@ -913,7 +971,9 @@
     });
     document.addEventListener('keydown', (e) => {
       if ($('vista-previa').open || !clave || e.ctrlKey || e.metaKey || e.altKey || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+      // 2.1.4: los atajos solo actúan con el foco en la fila (no en otros botones ni en el visor).
       const filaConFoco = e.target.closest && e.target.closest('.fila');
+      if (!filaConFoco) return;
       const otraFila = filaConFoco && seleccionado && filaConFoco !== filas.get(seleccionado).fila;
       const estado = { s: 'si', n: 'no', a: 'na' }[e.key.toLowerCase()];
       if (estado && seleccionado) {

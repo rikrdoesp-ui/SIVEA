@@ -4,11 +4,15 @@
  * copia JSON puede venir dañado o ser de otra lista: aquí se valida antes de usarlo.
  */
 const Avance = (() => {
+  // En el navegador estos scripts se cargan antes que este (ver index.html).
+  const Ficha = typeof module !== 'undefined' ? require('./ficha.js') : FichaSemestral;
+  const Mensual = typeof module !== 'undefined' ? require('./ficha-mensual.js') : FichaMensual;
+  const Puntaje = typeof module !== 'undefined' ? require('./puntaje.js') : PuntajeMensual;
   const CAMPOS = ['proyecto', 'contratista', 'periodo', 'revisadoPor', 'fecha'];
-  // Campos del encabezado y las firmas de la lista mensual; las otras listas los dejan vacíos.
-  const CAMPOS_MENSUALES = ['comentario', 'frente', 'fisico', 'evaluadoPor', 'aprobadoPor'];
+  // Campos del encabezado y las firmas de la lista mensual que no están ya en CAMPOS; las otras listas los dejan vacíos.
+  const CAMPOS_MENSUALES = Mensual.CAMPOS.filter((c) => !CAMPOS.includes(c));
   const ESTADOS = { si: 'SI', no: 'NO', na: 'N/A' };
-  const MAX_LUGARES = 5;
+  const MAX_LUGARES = Ficha.MAX_REFERENCIAS;
   const PRIMERA_LISTA = 'esia-067-2005';
   const LISTA_MENSUAL = 'mensual-r-pa03-20';
 
@@ -36,11 +40,8 @@ const Avance = (() => {
     limpio.observaciones = texto(guardado.observaciones);
     limpio.informeFinal = texto(guardado.informeFinal);
     // Porcentaje de la sección C: texto con un número de 0 a 100, o vacío.
-    // Solo dígitos con coma o punto decimal (no "0x1F" ni "1e1").
-    const escrito = texto(guardado.porcentajeC).trim();
-    const pct = typeof guardado.porcentajeC === 'number' ? guardado.porcentajeC
-      : (/^\d+(?:[.,]\d+)?$/.test(escrito) ? Number(escrito.replace(',', '.')) : NaN);
-    limpio.porcentajeC = Number.isFinite(pct) && pct >= 0 && pct <= 100 ? String(pct) : '';
+    const pct = Puntaje.porcentaje(guardado.porcentajeC);
+    limpio.porcentajeC = pct === null ? '' : Puntaje.aTexto(pct);
     limpio.otros = texto(guardado.otros);
     limpio.autollenado = guardado.autollenado === true;
     limpio.nombre = texto(guardado.nombre);

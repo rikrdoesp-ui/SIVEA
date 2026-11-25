@@ -17,7 +17,7 @@ const IndiceAnexos = (() => {
   const CARATULA_LETRA = /^(?:\d{1,2}\.\d{1,2}\s+ANEXOS\s+)?ANEXO\s+(\d{1,2}\.[A-Z](?:\.\d{1,2})?)\b\.?\s*[:\-–]?\s*(.+)$/;
   const MAX_TITULO = 90;
 
-  const normalizar = (texto) => String(texto).normalize('NFC').replace(/\s+/g, ' ').trim();
+  const normalizar = (texto) => String(texto).normalize('NFKC').replace(/\s+/g, ' ').trim();
   const sinRepetidos = (texto) => normalizar(normalizar(texto).replace(PIE, ' ').replace(ENCABEZADO_MENSUAL, ''));
   const tituloCorto = (t) => (t.length <= MAX_TITULO ? t : `${t.slice(0, MAX_TITULO).replace(/\s+\S*$/, '')}…`);
 
@@ -51,7 +51,8 @@ const IndiceAnexos = (() => {
       texto += item.str;
       previo = item;
     }
-    return texto;
+    // NFKC: las ligaduras del PDF ("ﬁ") pasan a letras normales, que la ficha sí admite.
+    return texto.normalize('NFKC');
   }
 
   function detectar(textos) {

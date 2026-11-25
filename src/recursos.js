@@ -36,5 +36,8 @@ const Recursos = (() => {
   /** Un blob hereda la política de seguridad de la página, también dentro del worker. */
   const urlDeModulo = async (nombre) => URL.createObjectURL(new Blob([await bytes(nombre)], { type: 'text/javascript' }));
 
-  return { bytes, texto, urlDeModulo };
+  return { bytes, texto, urlDeModulo, rutas: RUTAS };
 })();
+
+// tools/empaquetar.js lee de aquí la tabla de componentes que embebe.
+if (typeof module !== 'undefined') module.exports = { RUTAS: Recursos.rutas };

@@ -4,6 +4,8 @@
  * Los anexos se ubican por tema, porque su número cambia entre informes.
  */
 const Evidencia = (() => {
+  // En el navegador ficha.js se carga antes que este archivo (ver index.html).
+  const { sanear } = typeof module !== 'undefined' ? require('./ficha.js') : FichaSemestral;
   const MAX_PAGINAS = 6;
   const programa = (expresion) => ({ cuerpo: new RegExp(expresion, 'i') });
   const acapite = (n) => ({ matrizResolucion: new RegExp(`ac[aá]pite\\s+${n}\\b`, 'i') });
@@ -123,7 +125,7 @@ const Evidencia = (() => {
   };
 
   const titulosDe = (texto) => [...texto.matchAll(TITULO_NUMERADO), ...texto.matchAll(LEYENDA_CUADRO)]
-    .map((m) => ({ texto: recortar(m[0]), en: m.index, numerado: !/^Cuadro/.test(m[0]) }))
+    .map((m) => ({ texto: sanear(recortar(m[0])), en: m.index, numerado: !/^Cuadro/.test(m[0]) }))
     .filter((t) => t.texto.length >= 8)
     .sort((a, b) => a.en - b.en);
 
@@ -158,6 +160,7 @@ const Evidencia = (() => {
       const delCuerpo = regla.cuerpo ? buscarPaginas(textos, regla.cuerpo, enCuerpo) : [];
       const deMatriz = regla.matrizResolucion ? buscarPaginas(textos, regla.matrizResolucion, enMatriz) : [];
       resultado[id] = {
+        sinRegla: !REGLAS[id], // sin regla no hay búsqueda: la ausencia no demuestra nada
         anexos: regla.anexos ? indice.filter((a) => regla.anexos.test(a.titulo)) : [],
         paginas: [...delCuerpo, ...deMatriz],
         // Por página, el título de sección para citarlo en la observación o la referencia.
@@ -189,7 +192,7 @@ const Evidencia = (() => {
       .replace(/\s*\(?NO APLICA.*$/i, '')
       .replace(/\s*(?:vigentes?\s+)?(?:para|al finalizar|de)\s+este\s+periodo.*$/i, '')
       .replace(/[\s.:]+$/, '');
-    const completo = `Anexo ${anexo.numero}: ${titulo}`;
+    const completo = sanear(`Anexo ${anexo.numero}: ${titulo}`);
     if (completo.length <= MAX_TITULO_REFERENCIA) return completo;
     const corte = completo.slice(0, MAX_TITULO_REFERENCIA).replace(/\s+\S*$/, '');
     return `${corte.replace(/[\s,;:(]+$/, '')}…`;
@@ -202,7 +205,7 @@ const Evidencia = (() => {
     const fila = ['Registros incompletos', 'Fechas fuera del periodo', 'Sin firma', 'Documento ilegible'];
     if (evidencia && evidencia.anexos.some((a) => a.noAplica)) fila.unshift('El informe indica que no aplica para este periodo');
     const sinEvidencia = evidencia && !evidencia.anexos.length && !evidencia.paginas.length;
-    if (estado === 'si' || (!sinEvidencia && estado !== 'no')) return { fila, generales: [] };
+    if (estado === 'si' || (evidencia && evidencia.sinRegla) || (!sinEvidencia && estado !== 'no')) return { fila, generales: [] };
     const nombre = nombreRequisito(texto);
     const cierre = 'correspondiente al período evaluado, a fin de sustentar el cumplimiento ambiental y permitir la aprobación del documento.';
     const generales = /^(pma|res)/.test(id)
@@ -226,10 +229,10 @@ const Evidencia = (() => {
     // Mensuales: "Informe Mensual No. 34– enero 2026" da el comentario "Mensual ENERO-26".
     const mes = unido.match(/Informe Mensual No\.?\s*\d+\s*[–-]?\s*(\p{L}+)\s+\d{2}(\d{2})/iu);
     return {
-      periodo: periodo ? `${periodo[1]} – ${periodo[2]}`.toUpperCase() : '',
-      proyecto: proyecto ? proyecto[1].trim().slice(0, 300) : '',
-      contratista: contratista ? contratista[1].trim() : '',
-      mes: mes ? `${mes[1].toUpperCase()}-${mes[2]}` : '',
+      periodo: periodo ? sanear(`${periodo[1]} – ${periodo[2]}`.toUpperCase()) : '',
+      proyecto: proyecto ? sanear(proyecto[1].trim().slice(0, 300)) : '',
+      contratista: contratista ? sanear(contratista[1].trim()) : '',
+      mes: mes ? sanear(`${mes[1].toUpperCase()}-${mes[2]}`) : '',
     };
   }
 

@@ -20,11 +20,19 @@ const FichaMensual = (() => {
   const ALTO_OTROS = 12.4;
   const MAX_OTROS = 2000;
 
+  // Campos de texto del encabezado y las firmas; avance.js usa esta misma lista.
+  const CAMPOS = ['contratista', 'fecha', 'proyecto', 'comentario', 'frente', 'fisico', 'evaluadoPor', 'aprobadoPor'];
   const MESES = ['ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO', 'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'];
+  /** Día, mes y año de "d/m/aaaa"; null si no tiene esa forma o el mes no está entre 1 y 12. */
+  function partesDeFecha(fecha) {
+    const m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(fecha || '');
+    return m && Number(m[2]) >= 1 && Number(m[2]) <= 12 ? { dia: Number(m[1]), mes: Number(m[2]), anio: m[3] } : null;
+  }
+
   /** "Mensual ENERO-26" a partir de una fecha día/mes/año; vacío si la fecha no es válida. */
   function comentarioDeFecha(fecha) {
-    const m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(fecha || '');
-    return m && Number(m[2]) >= 1 && Number(m[2]) <= 12 ? `Mensual ${MESES[Number(m[2]) - 1]}-${m[3].slice(2)}` : '';
+    const f = partesDeFecha(fecha);
+    return f ? `Mensual ${MESES[f.mes - 1]}-${f.anio.slice(2)}` : '';
   }
 
   /** Nombre corto del proyecto: la última palabra ("…DEL RÍO MATASNILLO" → "Matasnillo"). */
@@ -43,16 +51,21 @@ const FichaMensual = (() => {
     const c = /(\p{L}+)-(\d{2})\s*$/u.exec(comentario || '');
     const i = c ? MESES.indexOf(c[1].toUpperCase()) : -1;
     let mes = i >= 0 ? `${String(i + 1).padStart(2, '0')}-${c[2]}` : '';
-    const f = /^(\d{1,2})\/(\d{1,2})\/\d{2}(\d{2})$/.exec(fecha || '');
-    if (!mes && f) mes = `${f[2].padStart(2, '0')}-${f[3]}`;
+    const f = partesDeFecha(fecha);
+    if (!mes && f) mes = `${String(f.mes).padStart(2, '0')}-${f.anio.slice(2)}`;
     return `LVM ${corto}${mes ? ` ${mes}` : ''}.pdf`;
   }
+
+  const RESERVADOS = /^(?:con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\..*)?$/i;
 
   /** Lo que el revisor escriba como nombre, sin caracteres que Windows no admite y con ".pdf". */
   function nombreSeguro(nombre, respaldo) {
     const limpio = String(nombre || '').replace(/[\\/:*?"<>|\u0000-\u001f]/g, '').replace(/\s+/g, ' ').trim().replace(/[. ]+$/, '');
-    if (!limpio.replace(/\.pdf$/i, '')) return respaldo;
-    return /\.pdf$/i.test(limpio) ? limpio : `${limpio}.pdf`;
+    const raiz = limpio.replace(/\.pdf$/i, '');
+    if (!raiz) return respaldo;
+    // Windows no deja crear archivos con estos nombres, ni con extensión ("CON.pdf").
+    const seguro = RESERVADOS.test(raiz) ? `_${limpio}` : limpio;
+    return /\.pdf$/i.test(seguro) ? seguro : `${seguro}.pdf`;
   }
 
   /** Valida los datos, que pueden venir de un respaldo importado, y deja solo lo conocido. */
@@ -60,7 +73,7 @@ const FichaMensual = (() => {
     if (datos === null || typeof datos !== 'object') throw new Error('datos: se esperaba un objeto con la ficha');
     const { limpiarTexto, LIMITE, MAX_REFERENCIAS } = Base;
     const limpio = { respuestas: {} };
-    for (const campo of ['contratista', 'fecha', 'proyecto', 'comentario', 'frente', 'fisico', 'evaluadoPor', 'aprobadoPor']) {
+    for (const campo of CAMPOS) {
       limpio[campo] = limpiarTexto(datos[campo], campo, LIMITE.dato);
     }
     limpio.otros = limpiarTexto(datos.otros, 'Otros', MAX_OTROS);
@@ -83,7 +96,7 @@ const FichaMensual = (() => {
           .slice(0, MAX_REFERENCIAS)
           .map((ref) => ({
             titulo: limpiarTexto(ref.titulo, `Título de la referencia de «${fila}»`, LIMITE.dato),
-            pagina: typeof ref.pagina === 'string' ? ref.pagina.slice(0, 60) : '',
+            pagina: limpiarTexto(ref.pagina, `Página de la referencia de «${fila}»`, 60),
           }));
         limpio.respuestas[id] = limpia;
       }
@@ -112,8 +125,8 @@ const FichaMensual = (() => {
       inicioPagina = y;
     };
 
-    const reservar = (alto) => {
-      if (alto > PAG.limite - PAG.arriba) throw new Error('Un bloque de la ficha no cabe en una página');
+    const reservar = (alto, cual = '') => {
+      if (alto > PAG.limite - PAG.arriba) throw new Error(`El bloque «${String(cual).slice(0, 60)}» de la ficha no cabe en una página`);
       if (y + alto > PAG.limite) nuevaPagina();
     };
 
@@ -135,7 +148,7 @@ const FichaMensual = (() => {
       const maximo = Math.max(...celdas.map((c) => lineas(c.texto, c.x1 - c.x0, c.bold, c.fs || FS.cuerpo).length));
       const interlinea = Math.max(...celdas.map((c) => c.interlinea || 9));
       const alto = maximo > 1 ? Math.max(altoMinimo, maximo * interlinea + 2.4) : altoMinimo;
-      reservar(alto);
+      reservar(alto, celdas.slice(0, 2).map((c) => c.texto).filter(Boolean).join(' '));
       const arriba = y;
       celdas.forEach((c) => dibujar(c, arriba, alto));
       if (grueso) { linea(X.izq, X.der, arriba, GRUESO); linea(X.izq, X.der, arriba + alto, GRUESO); }
@@ -233,7 +246,7 @@ const FichaMensual = (() => {
   }
 
   function filaTitulo(lienzo, seccion) {
-    lienzo.reservar(14.3 + 3 * ALTO_MIN); // el título no queda solo al final de la hoja
+    lienzo.reservar(14.3 + 3 * ALTO_MIN, seccion.titulo); // el título no queda solo al final de la hoja
     const g = { fondo: COLOR.gris, bold: true, fs: FS.seccion };
     if (seccion.columnas) {
       lienzo.fila([
@@ -305,7 +318,7 @@ const FichaMensual = (() => {
     const parrafos = lienzo.lineas(datos.otros, X.der - X.items, false, FS.cuerpo);
     const renglones = Math.max(5, parrafos.length);
     lienzo.avanzar(3.8);
-    lienzo.reservar(renglones * ALTO_OTROS + 2 * 10.5 + 14);
+    lienzo.reservar(renglones * ALTO_OTROS + 2 * 10.5 + 14, 'Otros');
     const y0 = lienzo.posicion();
     lienzo.dibujar({ x0: X.izq, x1: X.items, texto: '', fondo: COLOR.gris }, y0, renglones * ALTO_OTROS);
     doc.setFont('helvetica', 'bold').setFontSize(FS.seccion).setTextColor(...COLOR.negro).text('Otros :', X.izq + 1.3, y0 + 7.6);
@@ -350,7 +363,7 @@ const FichaMensual = (() => {
     return doc;
   }
 
-  return { generar, comentarioDeFecha, nombreDeArchivo, nombreSeguro };
+  return { generar, partesDeFecha, comentarioDeFecha, nombreDeArchivo, nombreSeguro, CAMPOS };
 })();
 
 if (typeof module !== 'undefined') module.exports = FichaMensual;

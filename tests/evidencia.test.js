@@ -105,10 +105,22 @@ test('lee proyecto, contratista y mes de un informe mensual', () => {
   assert.equal(d.proyecto, 'Diseño y Construcción del Colector Principal del Río Matasnillo');
 });
 
-test('cada ítem de la lista mensual tiene regla de evidencia', () => {
-  const mensual = require('../src/catalogo-mensual.json');
-  const sinRegla = mensual.secciones.flatMap((s) => s.items).filter((i) => !Evidencia.REGLAS[i.id]).map((i) => i.id);
-  assert.deepEqual(sinRegla, []);
+// Las filas pma166-/res166- esperan un informe de Arraiján para calibrarlas.
+test('cada ítem de los tres catálogos tiene regla de evidencia, salvo las de la lista 166', () => {
+  for (const nombre of ['catalogo', 'catalogo-166', 'catalogo-mensual']) {
+    const cat = require(`../src/${nombre}.json`);
+    const sinRegla = cat.secciones.flatMap((s) => s.items).map((i) => i.id).filter((id) => !Evidencia.REGLAS[id] && !/^(pma|res)166-/.test(id));
+    assert.deepEqual(sinRegla, [], nombre);
+  }
+});
+
+test('una fila sin regla se marca y no ofrece frases de ausencia', () => {
+  const r = Evidencia.sugerir(['pma166-01', 'pma-01'], ['texto'], []);
+  assert.equal(r['pma166-01'].sinRegla, true);
+  assert.equal(r['pma-01'].sinRegla, false);
+  assert.deepEqual(Evidencia.frases('pma166-01', 'Programa X', r['pma166-01'], 'no').generales, []);
+  assert.deepEqual(Evidencia.frases('pma166-01', 'Programa X', r['pma166-01'], '').generales, []);
+  assert.equal(Evidencia.frases('pma-01', 'Programa X', r['pma-01'], 'no').generales.length, 2);
 });
 
 test('cada página del cuerpo trae el título de su sección', () => {

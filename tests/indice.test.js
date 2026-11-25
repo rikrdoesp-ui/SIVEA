@@ -92,3 +92,19 @@ test('carátula "9.9 ANEXOS ANEXO 9.A" sin número impreso, y una lista de anexo
   ]);
   assert.deepEqual(anexos.map((a) => [a.numero, a.pagina]), [['9.A', 2]]);
 });
+
+test('las ligaduras del PDF pasan a letras normales', () => {
+  assert.equal(textoDePagina([trozo('Registro de \uFB01scalizaci\u00F3n', 0, 100, 50)]), 'Registro de fiscalización');
+});
+
+test('un título con ligadura o un carácter ajeno no bloquea la ficha', () => {
+  const Evidencia = require('../src/evidencia.js');
+  const textos = [`${pie(1)}Anexo No. 7: ${textoDePagina([trozo('Registro de \uFB01scalizaci\u00F3n', 0, 100, 50)])}`];
+  const [anexo] = detectar(textos);
+  assert.equal(anexo.titulo, 'Registro de fiscalización');
+  // Lo que siga fuera de WinAnsi no bloquea: pasa a "?".
+  assert.equal(Evidencia.tituloResumido({ numero: 7, titulo: 'Registro \u6F22 de obra' }), 'Anexo 7: Registro ? de obra');
+  assert.equal(Evidencia.datosDelInforme(['(DISEÑO Y CONSTRUCCIÓN DE \u6F22 COLECTOR)']).proyecto, 'DISEÑO Y CONSTRUCCIÓN DE ? COLECTOR');
+  const { secciones } = Evidencia.sugerir(['pma-02'], ['9.3.2 PROGRAMA \u6F22 DE CALIDAD DEL AIRE Programa de calidad del aire'], [])['pma-02'];
+  assert.ok(secciones.length && secciones.every((s) => !/\u6F22/.test(s.titulo)));
+});

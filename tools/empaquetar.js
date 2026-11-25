@@ -10,16 +10,7 @@ const raiz = path.join(__dirname, '..');
 const leer = (ruta) => fs.readFileSync(path.join(raiz, ruta));
 const SALIDA = 'docs';
 const ICONOS = ['icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png'];
-const EMBEBIDOS = {
-  pdf: 'vendor/pdfjs/pdf.min.mjs',
-  worker: 'vendor/pdfjs/pdf.worker.min.mjs',
-  'openjpeg.wasm': 'vendor/pdfjs/wasm/openjpeg.wasm',
-  'jbig2.wasm': 'vendor/pdfjs/wasm/jbig2.wasm',
-  'qcms_bg.wasm': 'vendor/pdfjs/wasm/qcms_bg.wasm',
-  catalogo: 'src/catalogo.json',
-  'catalogo-166': 'src/catalogo-166.json',
-  'catalogo-mensual': 'src/catalogo-mensual.json',
-};
+const { RUTAS: EMBEBIDOS } = require('../src/recursos.js');
 
 const huellas = [];
 let html = leer('index.html').toString('utf8').replace(/\r\n/g, '\n');

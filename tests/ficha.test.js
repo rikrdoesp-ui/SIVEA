@@ -125,13 +125,13 @@ test('la referencia con título y página sale en la observación solo cuando la
   assert.equal(FichaSemestral.textoObservacion({ estado: 'si', obs: '', ref: { titulo: '', pagina: '12' } }), 'pág. 12');
 });
 
-test('la referencia llega al PDF e ignora una página inválida', () => {
+test('la referencia llega al PDF y una página que no es número se muestra tal cual', () => {
   const datos = base();
   const id = catalogo.secciones[0].items[0].id;
   datos.respuestas[id] = { estado: 'si', obs: '', ref: { titulo: 'Matriz del PMA', pagina: '<x>' } };
   const { textos } = generarConRegistro(datos);
   assert.ok(unido(textos).includes('Matriz del PMA'));
-  assert.ok(!unido(textos).includes('<x>'));
+  assert.ok(unido(textos).includes('<x>'));
 });
 
 test('la fila más larga posible, con referencia, cabe completa', () => {
@@ -210,4 +210,22 @@ test('la lista de Arraiján - La Chorrera genera su ficha y repite los títulos 
   const primeraDeLaHoja2 = segunda.findIndex((t) => t.texto === 'OBSERVACION');
   assert.ok(primeraDeLaHoja2 >= 0);
   assert.ok(segunda.slice(0, primeraDeLaHoja2).every((t) => t.texto !== 'art.4 (z)'));
+});
+
+test('los rangos de páginas aceptan guion largo, medio y " a "', () => {
+  const { textoPaginas } = FichaSemestral;
+  assert.equal(textoPaginas('25 a 30'), 'págs. 25-30');
+  assert.equal(textoPaginas('667–670'), 'págs. 667-670');
+  assert.equal(textoPaginas('10—12, 40'), 'págs. 10-12, 40');
+  assert.equal(textoPaginas('12'), 'pág. 12');
+  assert.equal(textoPaginas(''), '');
+  // Lo que no es número no desaparece.
+  assert.equal(textoPaginas('anexo B'), 'anexo B');
+});
+
+test('si una fila no cabe en la página, el error dice cuál es', () => {
+  const datos = base();
+  const item = catalogo.secciones[0].items[0];
+  const grande = { ...catalogo, secciones: [{ ...catalogo.secciones[0], items: [{ ...item, texto: 'palabra '.repeat(6000) }] }] };
+  assert.throws(() => FichaSemestral.generar(jsPDF, grande, datos), /La fila «.*palabra palabra.*» de la ficha no cabe en una página/);
 });
