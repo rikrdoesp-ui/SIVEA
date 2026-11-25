@@ -2,7 +2,7 @@
   "name": "SIVEA · Sistema Inteligente de Verificación Ambiental",
   "short_name": "SIVEA",
   "description": "Revisión de informes semestrales de seguimiento ambiental y generación de la lista de verificación. Los informes se leen en el equipo y no se envían a ningún lado.",
-  "id": "./",
+  "id": "/SIVEA/",
   "lang": "es",
   "start_url": "./",
   "scope": "./",
