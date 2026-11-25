@@ -19,6 +19,7 @@ const Lector = (() => {
   let giro = 0;
   const usosMiniatura = new Map();
   let tareaRender = null;
+  let tareaTexto = null;
   let colaRender = Promise.resolve();
   let errorDibujo = null;
   let estado = { etapa: 'inicial' };
@@ -77,6 +78,37 @@ const Lector = (() => {
     ui.pagina.value = '1';
     ui.lienzo.width = 0;
     ui.lienzo.height = 0;
+    capaTexto().replaceChildren();
+  }
+
+  const capaTexto = () => ui.lienzo.nextElementSibling;
+
+  function cancelarTexto() {
+    if (tareaTexto) tareaTexto.cancel();
+    tareaTexto = null;
+  }
+
+  /** Capa de texto seleccionable sobre el lienzo. Nunca falla: sin ella el informe se ve igual. */
+  async function dibujarTexto(pagina, rotation, escalaCss) {
+    cancelarTexto();
+    const capa = capaTexto();
+    capa.replaceChildren();
+    capa.style.setProperty('--total-scale-factor', String(escalaCss));
+    capa.style.setProperty('--scale-round-x', '1px');
+    capa.style.setProperty('--scale-round-y', '1px');
+    const tarea = new pdfjs.TextLayer({
+      textContentSource: pagina.streamTextContent(),
+      container: capa,
+      viewport: pagina.getViewport({ scale: escalaCss, rotation }),
+    });
+    tareaTexto = tarea;
+    try {
+      await tarea.render();
+    } catch (e) {
+      if (e.name !== 'AbortException') console.warn('No se pudo armar el texto seleccionable', e);
+    } finally {
+      if (tareaTexto === tarea) tareaTexto = null;
+    }
   }
 
   async function dibujarPagina(documento, pedida) {
@@ -103,14 +135,17 @@ const Lector = (() => {
     ui.lienzo.style.width = `${Math.floor(cssAncho)}px`;
     const tarea = pagina.render({ canvas: ui.lienzo, viewport: vista });
     tareaRender = tarea;
+    const texto = dibujarTexto(pagina, rotation, cssAncho / base.width);
     try {
-      await tarea.promise;
+      await Promise.all([tarea.promise, texto]);
       errorDibujo = null;
       estado.ultimaDibujada = pedida;
     } catch (e) {
       if (e.name !== 'RenderingCancelledException') throw e;
     } finally {
       if (tareaRender === tarea) tareaRender = null;
+      // La capa de texto sigue leyendo la página: se espera a que acabe antes de limpiarla.
+      await texto;
       pagina.cleanup();
     }
   }
@@ -125,6 +160,7 @@ const Lector = (() => {
     const pedida = paginaActual;
     const documento = doc;
     if (tareaRender) tareaRender.cancel();
+    cancelarTexto();
     colaRender = colaRender.catch(() => {}).then(() => dibujarPagina(documento, pedida)).catch((e) => {
       if (documento !== doc) return;
       errorDibujo = `No se pudo mostrar la página ${pedida}. El resto del informe sigue disponible.`;
@@ -165,6 +201,7 @@ const Lector = (() => {
     doc = null;
     if (tareaRender) tareaRender.cancel();
     tareaRender = null;
+    cancelarTexto();
     if (anterior) {
       try {
         await anterior.destroy();

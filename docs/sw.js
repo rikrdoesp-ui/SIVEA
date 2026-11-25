@@ -1,6 +1,6 @@
 /* SIVEA: guarda la app en el equipo para que abra sin internet.
    Los informes PDF y las respuestas NO pasan por aquí: viven en el navegador del revisor. */
-const VERSION = 'e0e1d0ce2d68'; // tools/empaquetar.js la reemplaza por la huella de la versión publicada
+const VERSION = '73b7da0dc797'; // tools/empaquetar.js la reemplaza por la huella de la versión publicada
 const CACHE = `sivea-${VERSION}`;
 const ARCHIVOS = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './apple-touch-icon.png'];
 

@@ -104,6 +104,49 @@ const Evidencia = (() => {
     return paginas;
   }
 
+  // Títulos de sección: "9.3.2 AVANCE IMPLEMENTACION PLAN …" (número y palabras en mayúsculas)
+  // o leyendas de cuadro: "Cuadro 9.8: Capacitaciones realizadas …".
+  const PALABRA_MAYUS = '[A-ZÁÉÍÓÚÑÜ0-9][A-ZÁÉÍÓÚÑÜ0-9,()/–-]*';
+  const TITULO_NUMERADO = new RegExp(`(?<![\\d.])\\d{1,2}(?:\\.\\d{1,2}){1,3}\\.?\\s+(?:${PALABRA_MAYUS}(?=\\s|$)\\s*){2,14}`, 'g');
+  // Leyenda de cuadro: la palabra que sigue al número va en mayúscula ("Cuadro 9.8: Capacitaciones…");
+  // así no cuenta una mención en el texto ("en el Cuadro 9.8 se presenta…").
+  const LEYENDA_CUADRO = /\bCuadro\s+\d{1,2}(?:\.\d{1,2}){0,2}\s*[:.–-]?\s*[A-ZÁÉÍÓÚÑ][^.•]{3,100}/g;
+  const MAX_TITULO_SECCION = 80;
+  const PAGINAS_ATRAS = 60; // una sección (p. ej. una matriz) puede ocupar muchas páginas sin repetir su título
+
+  const recortar = (t) => {
+    let limpio = t.replace(/\s+/g, ' ').trim();
+    const anio = limpio.match(/^.*?\b(?:19|20)\d{2}\b/); // la leyenda suele terminar en el año; luego viene la tabla
+    if (anio && /^Cuadro/.test(limpio)) limpio = anio[0];
+    limpio = limpio.replace(/\s+\S$/, '').replace(/[\s,;:(–-]+$/, ''); // sin la letra suelta del texto que sigue
+    return limpio.length <= MAX_TITULO_SECCION ? limpio : `${limpio.slice(0, MAX_TITULO_SECCION).replace(/\s+\S*$/, '')}…`;
+  };
+
+  const titulosDe = (texto) => [...texto.matchAll(TITULO_NUMERADO), ...texto.matchAll(LEYENDA_CUADRO)]
+    .map((m) => ({ texto: recortar(m[0]), en: m.index, numerado: !/^Cuadro/.test(m[0]) }))
+    .filter((t) => t.texto.length >= 8)
+    .sort((a, b) => a.en - b.en);
+
+  /**
+   * Título de la sección donde aparece lo buscado en la página p (desde 1): primero uno que ya
+   * contenga lo buscado; si no, el último anterior a la coincidencia; si la página no tiene,
+   * el último título numerado de las páginas previas.
+   */
+  function seccionDe(textos, p, expresion) {
+    const texto = textos[p - 1];
+    const titulos = titulosDe(texto);
+    const propio = titulos.find((t) => expresion.test(t.texto));
+    if (propio) return propio.texto;
+    const donde = texto.search(expresion);
+    const previos = titulos.filter((t) => t.en <= donde);
+    if (previos.length) return previos[previos.length - 1].texto;
+    for (let q = p - 1; q >= Math.max(1, p - PAGINAS_ATRAS); q -= 1) {
+      const numerados = titulosDe(textos[q - 1]).filter((t) => t.numerado);
+      if (numerados.length) return numerados[numerados.length - 1].texto;
+    }
+    return titulos.length ? titulos[0].texto : 'Cuerpo del informe';
+  }
+
   /** Devuelve, por id de requisito, los anexos y las páginas donde conviene mirar. */
   function sugerir(ids, textos, indice) {
     const inicioAnexos = indice.length ? indice[0].pagina : textos.length + 1;
@@ -112,11 +155,15 @@ const Evidencia = (() => {
     const resultado = {};
     for (const id of ids) {
       const regla = REGLAS[id] || {};
+      const delCuerpo = regla.cuerpo ? buscarPaginas(textos, regla.cuerpo, enCuerpo) : [];
+      const deMatriz = regla.matrizResolucion ? buscarPaginas(textos, regla.matrizResolucion, enMatriz) : [];
       resultado[id] = {
         anexos: regla.anexos ? indice.filter((a) => regla.anexos.test(a.titulo)) : [],
-        paginas: [
-          ...(regla.cuerpo ? buscarPaginas(textos, regla.cuerpo, enCuerpo) : []),
-          ...(regla.matrizResolucion ? buscarPaginas(textos, regla.matrizResolucion, enMatriz) : []),
+        paginas: [...delCuerpo, ...deMatriz],
+        // Por página, el título de sección para citarlo en la observación o la referencia.
+        secciones: [
+          ...delCuerpo.map((p) => ({ pagina: p, titulo: seccionDe(textos, p, regla.cuerpo) })),
+          ...deMatriz.map((p) => ({ pagina: p, titulo: seccionDe(textos, p, regla.matrizResolucion) })),
         ],
       };
     }
@@ -186,7 +233,7 @@ const Evidencia = (() => {
     };
   }
 
-  return { sugerir, datosDelInforme, rangos, frases, tituloResumido, REGLAS };
+  return { sugerir, seccionDe, datosDelInforme, rangos, frases, tituloResumido, REGLAS };
 })();
 
 if (typeof module !== 'undefined') module.exports = Evidencia;

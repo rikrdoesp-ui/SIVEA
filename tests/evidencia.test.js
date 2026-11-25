@@ -110,3 +110,17 @@ test('cada ítem de la lista mensual tiene regla de evidencia', () => {
   const sinRegla = mensual.secciones.flatMap((s) => s.items).filter((i) => !Evidencia.REGLAS[i.id]).map((i) => i.id);
   assert.deepEqual(sinRegla, []);
 });
+
+test('cada página del cuerpo trae el título de su sección', () => {
+  const textos = [
+    'Introducción 9.3 AVANCES DE LA EJECUCIÓN DEL PLAN DE GESTIÓN AMBIENTAL A continuación se describe.',
+    'Durante el periodo se realizaron capacitaciones. Cuadro 9.8: Capacitaciones realizadas durante el mes de enero 2026 Fecha Tema Asistentes',
+    '9.3.2 AVANCE IMPLEMENTACION PLAN EDUCACION AMBIENTAL • PLAN DE EDUCACIÓN AMBIENTAL EN COLEGIOS Durante el periodo evaluado se continuaron las coordinaciones.',
+    'texto sin títulos donde se menciona el plan de educación ambiental',
+  ];
+  const t = (p, re) => Evidencia.seccionDe(textos, p, re);
+  assert.equal(t(3, /plan de educaci[oó]n ambiental/i), '9.3.2 AVANCE IMPLEMENTACION PLAN EDUCACION AMBIENTAL');
+  assert.equal(t(2, /capacitaci/i), 'Cuadro 9.8: Capacitaciones realizadas durante el mes de enero 2026');
+  assert.equal(t(4, /plan de educaci[oó]n ambiental/i), '9.3.2 AVANCE IMPLEMENTACION PLAN EDUCACION AMBIENTAL');
+  assert.equal(t(1, /avances/i), '9.3 AVANCES DE LA EJECUCIÓN DEL PLAN DE GESTIÓN AMBIENTAL');
+});

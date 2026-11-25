@@ -480,22 +480,28 @@
       linea.append(cita);
       lista.append(linea);
     }
-    if (ev.paginas.length) {
+    // Páginas del cuerpo con el título de su sección: se citan igual que un anexo.
+    for (const { pagina: p, titulo } of ev.secciones) {
+      const linea = crear('div', 'evidencia');
+      const ir = crear('button', 'ir', titulo);
+      ir.type = 'button';
+      ir.addEventListener('click', () => Lector.irA(p));
+      const cita = crear('button', 'citar', esSi ? 'Usar' : 'Citar');
+      cita.type = 'button';
+      cita.setAttribute('aria-label', esSi ? `Usar ${titulo}, página ${p}, como referencia` : `Citar ${titulo}, página ${p}, en la observación`);
+      cita.addEventListener('click', () => {
+        if (esSi) usarReferencia(id, titulo, String(p));
+        else agregarAFila(id, `${titulo}, pág. ${p}`);
+      });
+      linea.append(ir, crear('span', 'pag', `pág. ${p}`), crear('span'), cita);
+      lista.append(linea);
+    }
+    if (ev.paginas.length && esSi) {
       const linea = crear('div', 'paginas');
-      linea.append(crear('span', 'nota', 'En el informe:'));
-      for (const p of ev.paginas) {
-        const boton = crear('button', 'chip', String(p));
-        boton.type = 'button';
-        boton.setAttribute('aria-label', `Ir a la página ${p}`);
-        boton.addEventListener('click', () => Lector.irA(p));
-        linea.append(boton);
-      }
-      if (esSi) {
-        const usar = crear('button', 'citar', 'Usar cuerpo del informe');
-        usar.type = 'button';
-        usar.addEventListener('click', () => usarReferencia(id, 'Cuerpo del informe', String(Lector.pagina())));
-        linea.append(usar);
-      }
+      const usar = crear('button', 'citar', 'Usar la página que estoy viendo');
+      usar.type = 'button';
+      usar.addEventListener('click', () => usarReferencia(id, 'Cuerpo del informe', String(Lector.pagina())));
+      linea.append(usar);
       lista.append(linea);
     }
     if (!ev.anexos.length && !ev.paginas.length) {

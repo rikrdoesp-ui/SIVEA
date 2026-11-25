@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-l8/xU8l2XyW1uvtpOPMyOfuY8yEXWeGqVv+aUYbIFkk=' 'sha256-r7i+S90b4sDH2KPW/AQ18fYWn+m03xueFHKfVjuOlWk=' 'sha256-3BJdgZW1nFmSnohB7VGz+vu1dLTnvG7Pj+lWNoFWICg=' 'sha256-fHgLOD7XOn+ezOmhkBbaEprFgCpiHaHWcy3sL97defQ=' 'sha256-h8olRnf079urmQFJE6yswPZGSMBwxvtk8bKbzLt6cUE=' 'sha256-WCKzQV4sDQH8ggU2joEuxH3wZKF3Z7GY8imdtAigCRQ=' 'sha256-wAl2Xz42Txud6BXgsaduCeW3eMBVyqEePwqIoZMjTNo=' 'sha256-Zba78u0C5zB6qureEwRIS8OKeTkaQBBSvva72MYCSdI=' 'sha256-hE4moqp0lnCnJjQzYEzQe98meYboO/hB4oD5wj6glS8=' 'sha256-4JJIQbULYRxDMhEK2n8hnIg5WGPAblmSdZWp2A+UEe4=' 'sha256-n4TH4cxS2hi6z/87SAZ1x47531dpni5gE79gyMv9erE=' 'sha256-Z5YCUyEKFRcTm5efa9EuUBHXmpkysQ9HCi4K7U1Rbdg=' 'sha256-XvFcrOhQkXes0Yr68jbke+I437YVFmiMHsmwzC261tI=' blob: 'wasm-unsafe-eval'; style-src 'unsafe-inline'; img-src 'self' data: blob:; font-src data: blob:; worker-src 'self' blob:; manifest-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-l8/xU8l2XyW1uvtpOPMyOfuY8yEXWeGqVv+aUYbIFkk=' 'sha256-r7i+S90b4sDH2KPW/AQ18fYWn+m03xueFHKfVjuOlWk=' 'sha256-3BJdgZW1nFmSnohB7VGz+vu1dLTnvG7Pj+lWNoFWICg=' 'sha256-fHgLOD7XOn+ezOmhkBbaEprFgCpiHaHWcy3sL97defQ=' 'sha256-h8olRnf079urmQFJE6yswPZGSMBwxvtk8bKbzLt6cUE=' 'sha256-WCKzQV4sDQH8ggU2joEuxH3wZKF3Z7GY8imdtAigCRQ=' 'sha256-wAl2Xz42Txud6BXgsaduCeW3eMBVyqEePwqIoZMjTNo=' 'sha256-JZp76qKDhIe9NUnlPEkIWUk5ucl6b5NBkyU1Q65VeGw=' 'sha256-hE4moqp0lnCnJjQzYEzQe98meYboO/hB4oD5wj6glS8=' 'sha256-ktulVMoTCzqYxcA2Jt7Pi9EGj4k1oliw9CyHPhaZSH8=' 'sha256-n4TH4cxS2hi6z/87SAZ1x47531dpni5gE79gyMv9erE=' 'sha256-3N2/VfOVEqnsQt7OF4I912ZxV9GcIX3TPioukkMdkis=' 'sha256-XvFcrOhQkXes0Yr68jbke+I437YVFmiMHsmwzC261tI=' blob: 'wasm-unsafe-eval'; style-src 'unsafe-inline'; img-src 'self' data: blob:; font-src data: blob:; worker-src 'self' blob:; manifest-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <title>SIVEA · Sistema Inteligente de Verificación Ambiental</title>
 <meta name="description" content="Revisión de informes semestrales de seguimiento ambiental y generación de la lista de verificación.">
 <meta name="theme-color" content="#0b2140">
@@ -156,6 +156,16 @@
   .informe { min-width: 0; min-height: 0; color: var(--tinta); }
   #visor { height: 100%; overflow: auto; padding: 4px 14px 12px 8px; text-align: center; }
   canvas { background: #fff; box-shadow: var(--sombra-hoja); vertical-align: top; }
+  /* Capa de texto seleccionable sobre la hoja (de pdf_viewer.css de pdf.js) */
+  #pagina-visor { position: relative; display: inline-block; vertical-align: top; }
+  .textLayer { position: absolute; inset: 0; overflow: clip; text-align: initial; line-height: 1; text-size-adjust: none; forced-color-adjust: none; transform-origin: 0 0; caret-color: CanvasText; }
+  .textLayer :is(span, br) { color: transparent; position: absolute; white-space: pre; cursor: text; transform-origin: 0 0; }
+  .textLayer span.markedContent { top: 0; height: 0; }
+  .textLayer > :not(.markedContent), .textLayer .markedContent span:not(.markedContent) { --font-height: 0; font-size: calc(var(--total-scale-factor) * var(--font-height)); transform: rotate(var(--rotate, 0deg)) scaleX(var(--scale-x, 1)); }
+  .textLayer[data-main-rotation="90"] { transform: rotate(90deg) translateY(-100%); }
+  .textLayer[data-main-rotation="180"] { transform: rotate(180deg) translate(-100%, -100%); }
+  .textLayer[data-main-rotation="270"] { transform: rotate(270deg) translateX(-100%); }
+  .textLayer ::selection { background: rgba(0, 90, 200, .35); color: transparent; }
 
   /* Antes de abrir un informe, la hoja de la derecha es donde se deja */
   .vacio { height: 100%; aspect-ratio: 8.5 / 11; max-width: 100%; margin: 0 auto; display: grid; place-content: center; justify-items: center; gap: 16px; padding: 24px; border: 2px dashed var(--etiqueta); border-radius: 10px; background: var(--papel); color: var(--tinta); }
@@ -352,7 +362,7 @@
         <span id="vacio-lista" class="vacio-lista"></span>
         <label class="boton" for="archivo">Elegir informe</label>
       </div>
-      <canvas id="lienzo" hidden></canvas>
+      <div id="pagina-visor"><canvas id="lienzo" hidden></canvas><div class="textLayer" id="capa-texto"></div></div>
     </div>
     <div id="mosaico" hidden>
       <div class="cabeza-mosaico">
@@ -1695,6 +1705,49 @@ const Evidencia = (() => {
     return paginas;
   }
 
+  // Títulos de sección: "9.3.2 AVANCE IMPLEMENTACION PLAN …" (número y palabras en mayúsculas)
+  // o leyendas de cuadro: "Cuadro 9.8: Capacitaciones realizadas …".
+  const PALABRA_MAYUS = '[A-ZÁÉÍÓÚÑÜ0-9][A-ZÁÉÍÓÚÑÜ0-9,()/–-]*';
+  const TITULO_NUMERADO = new RegExp(`(?<![\\d.])\\d{1,2}(?:\\.\\d{1,2}){1,3}\\.?\\s+(?:${PALABRA_MAYUS}(?=\\s|$)\\s*){2,14}`, 'g');
+  // Leyenda de cuadro: la palabra que sigue al número va en mayúscula ("Cuadro 9.8: Capacitaciones…");
+  // así no cuenta una mención en el texto ("en el Cuadro 9.8 se presenta…").
+  const LEYENDA_CUADRO = /\bCuadro\s+\d{1,2}(?:\.\d{1,2}){0,2}\s*[:.–-]?\s*[A-ZÁÉÍÓÚÑ][^.•]{3,100}/g;
+  const MAX_TITULO_SECCION = 80;
+  const PAGINAS_ATRAS = 60; // una sección (p. ej. una matriz) puede ocupar muchas páginas sin repetir su título
+
+  const recortar = (t) => {
+    let limpio = t.replace(/\s+/g, ' ').trim();
+    const anio = limpio.match(/^.*?\b(?:19|20)\d{2}\b/); // la leyenda suele terminar en el año; luego viene la tabla
+    if (anio && /^Cuadro/.test(limpio)) limpio = anio[0];
+    limpio = limpio.replace(/\s+\S$/, '').replace(/[\s,;:(–-]+$/, ''); // sin la letra suelta del texto que sigue
+    return limpio.length <= MAX_TITULO_SECCION ? limpio : `${limpio.slice(0, MAX_TITULO_SECCION).replace(/\s+\S*$/, '')}…`;
+  };
+
+  const titulosDe = (texto) => [...texto.matchAll(TITULO_NUMERADO), ...texto.matchAll(LEYENDA_CUADRO)]
+    .map((m) => ({ texto: recortar(m[0]), en: m.index, numerado: !/^Cuadro/.test(m[0]) }))
+    .filter((t) => t.texto.length >= 8)
+    .sort((a, b) => a.en - b.en);
+
+  /**
+   * Título de la sección donde aparece lo buscado en la página p (desde 1): primero uno que ya
+   * contenga lo buscado; si no, el último anterior a la coincidencia; si la página no tiene,
+   * el último título numerado de las páginas previas.
+   */
+  function seccionDe(textos, p, expresion) {
+    const texto = textos[p - 1];
+    const titulos = titulosDe(texto);
+    const propio = titulos.find((t) => expresion.test(t.texto));
+    if (propio) return propio.texto;
+    const donde = texto.search(expresion);
+    const previos = titulos.filter((t) => t.en <= donde);
+    if (previos.length) return previos[previos.length - 1].texto;
+    for (let q = p - 1; q >= Math.max(1, p - PAGINAS_ATRAS); q -= 1) {
+      const numerados = titulosDe(textos[q - 1]).filter((t) => t.numerado);
+      if (numerados.length) return numerados[numerados.length - 1].texto;
+    }
+    return titulos.length ? titulos[0].texto : 'Cuerpo del informe';
+  }
+
   /** Devuelve, por id de requisito, los anexos y las páginas donde conviene mirar. */
   function sugerir(ids, textos, indice) {
     const inicioAnexos = indice.length ? indice[0].pagina : textos.length + 1;
@@ -1703,11 +1756,15 @@ const Evidencia = (() => {
     const resultado = {};
     for (const id of ids) {
       const regla = REGLAS[id] || {};
+      const delCuerpo = regla.cuerpo ? buscarPaginas(textos, regla.cuerpo, enCuerpo) : [];
+      const deMatriz = regla.matrizResolucion ? buscarPaginas(textos, regla.matrizResolucion, enMatriz) : [];
       resultado[id] = {
         anexos: regla.anexos ? indice.filter((a) => regla.anexos.test(a.titulo)) : [],
-        paginas: [
-          ...(regla.cuerpo ? buscarPaginas(textos, regla.cuerpo, enCuerpo) : []),
-          ...(regla.matrizResolucion ? buscarPaginas(textos, regla.matrizResolucion, enMatriz) : []),
+        paginas: [...delCuerpo, ...deMatriz],
+        // Por página, el título de sección para citarlo en la observación o la referencia.
+        secciones: [
+          ...delCuerpo.map((p) => ({ pagina: p, titulo: seccionDe(textos, p, regla.cuerpo) })),
+          ...deMatriz.map((p) => ({ pagina: p, titulo: seccionDe(textos, p, regla.matrizResolucion) })),
         ],
       };
     }
@@ -1777,7 +1834,7 @@ const Evidencia = (() => {
     };
   }
 
-  return { sugerir, datosDelInforme, rangos, frases, tituloResumido, REGLAS };
+  return { sugerir, seccionDe, datosDelInforme, rangos, frases, tituloResumido, REGLAS };
 })();
 
 if (typeof module !== 'undefined') module.exports = Evidencia;
@@ -1844,6 +1901,7 @@ const Lector = (() => {
   let giro = 0;
   const usosMiniatura = new Map();
   let tareaRender = null;
+  let tareaTexto = null;
   let colaRender = Promise.resolve();
   let errorDibujo = null;
   let estado = { etapa: 'inicial' };
@@ -1902,6 +1960,37 @@ const Lector = (() => {
     ui.pagina.value = '1';
     ui.lienzo.width = 0;
     ui.lienzo.height = 0;
+    capaTexto().replaceChildren();
+  }
+
+  const capaTexto = () => ui.lienzo.nextElementSibling;
+
+  function cancelarTexto() {
+    if (tareaTexto) tareaTexto.cancel();
+    tareaTexto = null;
+  }
+
+  /** Capa de texto seleccionable sobre el lienzo. Nunca falla: sin ella el informe se ve igual. */
+  async function dibujarTexto(pagina, rotation, escalaCss) {
+    cancelarTexto();
+    const capa = capaTexto();
+    capa.replaceChildren();
+    capa.style.setProperty('--total-scale-factor', String(escalaCss));
+    capa.style.setProperty('--scale-round-x', '1px');
+    capa.style.setProperty('--scale-round-y', '1px');
+    const tarea = new pdfjs.TextLayer({
+      textContentSource: pagina.streamTextContent(),
+      container: capa,
+      viewport: pagina.getViewport({ scale: escalaCss, rotation }),
+    });
+    tareaTexto = tarea;
+    try {
+      await tarea.render();
+    } catch (e) {
+      if (e.name !== 'AbortException') console.warn('No se pudo armar el texto seleccionable', e);
+    } finally {
+      if (tareaTexto === tarea) tareaTexto = null;
+    }
   }
 
   async function dibujarPagina(documento, pedida) {
@@ -1928,14 +2017,17 @@ const Lector = (() => {
     ui.lienzo.style.width = `${Math.floor(cssAncho)}px`;
     const tarea = pagina.render({ canvas: ui.lienzo, viewport: vista });
     tareaRender = tarea;
+    const texto = dibujarTexto(pagina, rotation, cssAncho / base.width);
     try {
-      await tarea.promise;
+      await Promise.all([tarea.promise, texto]);
       errorDibujo = null;
       estado.ultimaDibujada = pedida;
     } catch (e) {
       if (e.name !== 'RenderingCancelledException') throw e;
     } finally {
       if (tareaRender === tarea) tareaRender = null;
+      // La capa de texto sigue leyendo la página: se espera a que acabe antes de limpiarla.
+      await texto;
       pagina.cleanup();
     }
   }
@@ -1950,6 +2042,7 @@ const Lector = (() => {
     const pedida = paginaActual;
     const documento = doc;
     if (tareaRender) tareaRender.cancel();
+    cancelarTexto();
     colaRender = colaRender.catch(() => {}).then(() => dibujarPagina(documento, pedida)).catch((e) => {
       if (documento !== doc) return;
       errorDibujo = `No se pudo mostrar la página ${pedida}. El resto del informe sigue disponible.`;
@@ -1990,6 +2083,7 @@ const Lector = (() => {
     doc = null;
     if (tareaRender) tareaRender.cancel();
     tareaRender = null;
+    cancelarTexto();
     if (anterior) {
       try {
         await anterior.destroy();
@@ -2792,22 +2886,28 @@ const Mosaico = (() => {
       linea.append(cita);
       lista.append(linea);
     }
-    if (ev.paginas.length) {
+    // Páginas del cuerpo con el título de su sección: se citan igual que un anexo.
+    for (const { pagina: p, titulo } of ev.secciones) {
+      const linea = crear('div', 'evidencia');
+      const ir = crear('button', 'ir', titulo);
+      ir.type = 'button';
+      ir.addEventListener('click', () => Lector.irA(p));
+      const cita = crear('button', 'citar', esSi ? 'Usar' : 'Citar');
+      cita.type = 'button';
+      cita.setAttribute('aria-label', esSi ? `Usar ${titulo}, página ${p}, como referencia` : `Citar ${titulo}, página ${p}, en la observación`);
+      cita.addEventListener('click', () => {
+        if (esSi) usarReferencia(id, titulo, String(p));
+        else agregarAFila(id, `${titulo}, pág. ${p}`);
+      });
+      linea.append(ir, crear('span', 'pag', `pág. ${p}`), crear('span'), cita);
+      lista.append(linea);
+    }
+    if (ev.paginas.length && esSi) {
       const linea = crear('div', 'paginas');
-      linea.append(crear('span', 'nota', 'En el informe:'));
-      for (const p of ev.paginas) {
-        const boton = crear('button', 'chip', String(p));
-        boton.type = 'button';
-        boton.setAttribute('aria-label', `Ir a la página ${p}`);
-        boton.addEventListener('click', () => Lector.irA(p));
-        linea.append(boton);
-      }
-      if (esSi) {
-        const usar = crear('button', 'citar', 'Usar cuerpo del informe');
-        usar.type = 'button';
-        usar.addEventListener('click', () => usarReferencia(id, 'Cuerpo del informe', String(Lector.pagina())));
-        linea.append(usar);
-      }
+      const usar = crear('button', 'citar', 'Usar la página que estoy viendo');
+      usar.type = 'button';
+      usar.addEventListener('click', () => usarReferencia(id, 'Cuerpo del informe', String(Lector.pagina())));
+      linea.append(usar);
       lista.append(linea);
     }
     if (!ev.anexos.length && !ev.paginas.length) {
