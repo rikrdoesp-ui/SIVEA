@@ -27,3 +27,16 @@ node .claude/serve.mjs 8093     # servidor local de desarrollo
 Los iconos se generan con `uv run --no-project --with pillow python tools/iconos.py <icono> [<marca>]`.
 
 Componentes de terceros: pdf.js (Apache-2.0) y jsPDF (MIT). Ver `vendor/PROCEDENCIA.txt` y las licencias en `vendor/`.
+
+## Instalador para Windows
+
+`SIVEA-Setup.exe` instala SIVEA como programa de escritorio (Electron, sin navegador), con su icono en el menú Inicio y en el escritorio. Es la misma app de `docs/index.html`, con las mismas restricciones: sin red, ventana que no navega a otras páginas y sin permisos de cámara, ubicación ni similares. El avance se guarda en el perfil de la app instalada, separado del que tenga el navegador; para pasarlo de uno a otro se usa "Guardar copia del avance".
+
+```bash
+cd escritorio
+npm install
+npm run dist     # empaqueta docs/index.html y arma escritorio/dist/SIVEA-Setup-1.0.0.exe (unos 120 MB)
+npm start        # abre la app sin instalar, con menú Ver > Herramientas de desarrollo
+```
+
+El instalador deja elegir la carpeta, no pide permisos de administrador (instala para el usuario) y se puede correr en silencio con `SIVEA-Setup-1.0.0.exe /S`. El ejecutable no está firmado (no hay certificado): Windows SmartScreen mostrará "Windows protegió su PC / editor desconocido", y hay que elegir "Más información" y "Ejecutar de todas formas". Si cambia el icono, se rehace con `uv run --no-project --with pillow python tools/iconos.py --ico`.

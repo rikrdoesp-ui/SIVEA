@@ -25,3 +25,13 @@
 !docs/.nojekyll
 
 !iconos/marca-sivea.jpg
+
+# Instalador de Windows (Electron): solo el código; sin dependencias ni salida del build.
+!escritorio/
+escritorio/*
+escritorio/app/
+!escritorio/package.json
+!escritorio/package-lock.json
+!escritorio/main.js
+!escritorio/preparar.js
+!iconos/icon.ico

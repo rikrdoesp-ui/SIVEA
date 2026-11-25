@@ -1,8 +1,9 @@
 """Genera los iconos de SIVEA y la imagen de marca de la pantalla inicial.
 
 Uso: uv run --no-project --with pillow python tools/iconos.py <icono> [<marca>]
-Escribe en iconos/: icon-192.png, icon-512.png, icon-maskable-512.png, apple-touch-icon.png
-y, si se da la marca, marca-sivea.jpg.
+Escribe en iconos/: icon-192.png, icon-512.png, icon-maskable-512.png, apple-touch-icon.png, icon.ico
+(para el instalador de Windows) y, si se da la marca, marca-sivea.jpg.
+Con --ico solo rehace icon.ico a partir de iconos/icon-512.png.
 """
 import sys
 from pathlib import Path
@@ -32,7 +33,17 @@ def sobre_fondo(img: Image.Image, lado: int, margen: float) -> Image.Image:
     return fondo
 
 
+def ico(base: Image.Image) -> None:
+    """Icono de Windows con todos los tamaños que usa el sistema (el instalador y los accesos directos)."""
+    base.resize((256, 256), Image.LANCZOS).save(
+        SALIDA / "icon.ico", sizes=[(n, n) for n in (16, 24, 32, 48, 64, 128, 256)]
+    )
+
+
 def main() -> None:
+    if sys.argv[1:] == ["--ico"]:
+        ico(Image.open(SALIDA / "icon-512.png").convert("RGBA"))
+        return print(f"Listo {SALIDA / 'icon.ico'}")
     if len(sys.argv) not in (2, 3):
         sys.exit(__doc__)
     base = cuadrada(Image.open(sys.argv[1]).convert("RGBA"))
@@ -45,6 +56,7 @@ def main() -> None:
     sobre_fondo(base, 512, 0.10).save(SALIDA / "icon-maskable-512.png")
     # iOS no admite transparencia en el icono de inicio.
     sobre_fondo(base, 180, 0.0).convert("RGB").save(SALIDA / "apple-touch-icon.png")
+    ico(base)
     if len(sys.argv) == 3:
         marca = Image.open(sys.argv[2]).convert("RGB")
         alto = round(marca.height * ANCHO_MARCA / marca.width)

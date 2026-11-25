@@ -1,0 +1,39 @@
+{
+  "name": "sivea",
+  "productName": "SIVEA",
+  "version": "1.0.0",
+  "description": "SIVEA · Sistema Inteligente de Verificación Ambiental (instalador para Windows)",
+  "main": "main.js",
+  "private": true,
+  "author": "SIVEA",
+  "scripts": {
+    "start": "node preparar.js && electron .",
+    "dist": "node ../tools/empaquetar.js && node preparar.js && electron-builder --win nsis"
+  },
+  "devDependencies": {
+    "electron": "45.3.0",
+    "electron-builder": "26.18.1"
+  },
+  "build": {
+    "appId": "pa.saneamiento.sivea",
+    "productName": "SIVEA",
+    "directories": { "output": "dist", "buildResources": "build" },
+    "files": ["main.js", "app/index.html"],
+    "win": {
+      "target": [{ "target": "nsis", "arch": ["x64"] }],
+      "icon": "build/icon.ico",
+      "signExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": "always",
+      "createStartMenuShortcut": true,
+      "shortcutName": "SIVEA",
+      "artifactName": "SIVEA-Setup-${version}.${ext}",
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico"
+    }
+  }
+}
