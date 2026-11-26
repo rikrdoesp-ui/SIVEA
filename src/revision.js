@@ -782,9 +782,64 @@
         if (avisoDibujo) avisar(avisoDibujo);
         else avisarVerificacion(sinLeer);
         if (!seleccionado) siguientePendiente();
+        revisarListaDelInforme(textos);
       },
     },
   );
+
+  // --- Elección de la lista: se confirma en cada sesión, antes de elegir el informe ---
+  const CLAVE_CONFIRMADA = 'semestrales.listaConfirmada';
+  const CLAVE_REABRIR = 'semestrales.reabrirInforme';
+  const nombreLista = (id) => ([...$('tipo-ficha').options].find((o) => o.value === id) || {}).textContent || id;
+
+  function listaConfirmada() {
+    try {
+      return sessionStorage.getItem(CLAVE_CONFIRMADA) === fichaElegida;
+    } catch {
+      return true; // sin almacenamiento de sesión no se bloquea el uso
+    }
+  }
+
+  function pintarEleccionDeLista() {
+    const confirmada = listaConfirmada();
+    for (const b of document.querySelectorAll('.opcion-lista')) b.setAttribute('aria-pressed', String(confirmada && b.dataset.lista === fichaElegida));
+    $('elegir-informe').classList.toggle('inactivo', !confirmada);
+    $('vacio-lista').textContent = confirmada ? `Vas a revisar con: ${nombreLista(fichaElegida)}.` : 'Primero elige la lista; después, el informe.';
+  }
+
+  function confirmarLista() {
+    try { sessionStorage.setItem(CLAVE_CONFIRMADA, fichaElegida); } catch { /* sin almacenamiento de sesión */ }
+    pintarEleccionDeLista();
+    avisar(`Lista elegida: ${nombreLista(fichaElegida)}. Ahora elige el informe.`);
+  }
+
+  /** Cambia de lista (recarga la página). Devuelve false si no se cambió. */
+  function cambiarLista(lista, { sinPreguntar = false } = {}) {
+    if (!sinPreguntar && hayInforme() && !window.confirm('Se cerrará el informe abierto. Tu avance queda guardado. ¿Cambiar de lista?')) return false;
+    try {
+      localStorage.setItem(CLAVE_FICHA, lista);
+      sessionStorage.setItem(CLAVE_CONFIRMADA, lista);
+      window.location.reload();
+      return true;
+    } catch {
+      avisar('No se pudo cambiar de lista: este navegador no permite guardar datos.', true);
+      return false;
+    }
+  }
+
+  /** Si el informe parece de otra lista, lo dice y ofrece cambiar. */
+  function revisarListaDelInforme(textos) {
+    const probable = Evidencia.listaProbable(textos);
+    if (!probable || probable === fichaElegida) return;
+    const otra = nombreLista(probable);
+    const actual = nombreLista(fichaElegida);
+    if (window.confirm(`Este informe parece de la lista «${otra}», pero estás revisando con «${actual}».\n\n¿Cambiar a «${otra}»? Después vuelve a elegir el mismo informe.`)) {
+      try { sessionStorage.setItem(CLAVE_REABRIR, '1'); } catch { /* solo es un aviso */ }
+      cambiarLista(probable, { sinPreguntar: true });
+    } else {
+      avisar(`Ojo: este informe parece de la lista «${otra}» y estás usando «${actual}».`, true);
+    }
+  }
 
   function siguientePendiente() {
     const inicio = seleccionado ? ids.indexOf(seleccionado) + 1 : 0;
@@ -796,6 +851,12 @@
   }
 
   function abrirInforme(archivo) {
+    if (!listaConfirmada()) {
+      $('archivo').value = '';
+      pintarEleccionDeLista();
+      avisar('Primero elige con qué lista vas a revisar: Ciudad y Bahía, Arraiján o Mensual.', true);
+      return;
+    }
     $('etiqueta-archivo').textContent = 'Cambiar informe';
     for (const boton of ACCIONES_DE_AVANCE) $(boton).disabled = false;
     nombreArchivo = archivo.name;
@@ -1002,24 +1063,26 @@
   for (const id of ['cab-mensual', 'cierre-mensual']) $(id).hidden = !mensual;
   $('titulo-lista').textContent = catalogo.encabezado.titulo;
   $('tipo-ficha').value = fichaElegida;
-  $('vacio-lista').textContent = `Lista: ${$('tipo-ficha').selectedOptions[0].textContent}. Puedes cambiarla arriba a la izquierda.`;
   $('tipo-ficha').addEventListener('change', (e) => {
-    if (nombreArchivo && !window.confirm('Se cerrará el informe abierto. Tu avance queda guardado. ¿Cambiar de lista?')) {
-      e.target.value = fichaElegida;
-      return;
-    }
-    try {
-      localStorage.setItem(CLAVE_FICHA, e.target.value);
-      window.location.reload();
-    } catch {
-      e.target.value = fichaElegida;
-      avisar('No se pudo cambiar de lista: este navegador no permite guardar datos.', true);
-    }
+    if (!cambiarLista(e.target.value)) e.target.value = fichaElegida;
   });
+  for (const boton of document.querySelectorAll('.opcion-lista')) {
+    boton.addEventListener('click', () => {
+      if (boton.dataset.lista === fichaElegida) confirmarLista();
+      else cambiarLista(boton.dataset.lista);
+    });
+  }
+  pintarEleccionDeLista();
   construirFicha();
   eventos();
   mostrarAvanceAlIniciar();
   pintarFicha();
+  try {
+    if (sessionStorage.getItem(CLAVE_REABRIR) === '1') {
+      sessionStorage.removeItem(CLAVE_REABRIR);
+      avisar(`Cambiaste a la lista ${nombreLista(fichaElegida)}. Vuelve a elegir el mismo informe.`);
+    }
+  } catch { /* solo es un aviso */ }
 
   if (new URLSearchParams(window.location.search).has('depurar')) {
     Object.defineProperty(window, 'revision', { get: () => ({ lector: Lector.estado(), evidencias, ficha, paginasUltimaFicha }) });

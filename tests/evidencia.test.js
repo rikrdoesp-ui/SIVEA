@@ -136,3 +136,10 @@ test('cada página del cuerpo trae el título de su sección', () => {
   assert.equal(t(4, /plan de educaci[oó]n ambiental/i), '9.3.2 AVANCE IMPLEMENTACION PLAN EDUCACION AMBIENTAL');
   assert.equal(t(1, /avances/i), '9.3 AVANCES DE LA EJECUCIÓN DEL PLAN DE GESTIÓN AMBIENTAL');
 });
+
+test('reconoce la lista que corresponde al informe', () => {
+  assert.equal(Evidencia.listaProbable(['“Diseño y Construcción…” Informe Mensual No. 34 – enero 2026', 'Matriz de la Resolución DINEORA IA-067-2005']), 'mensual-r-pa03-20');
+  assert.equal(Evidencia.listaProbable(['Informe de seguimiento semestral', 'Resolución DINEORA IA-067-2005']), 'esia-067-2005');
+  assert.equal(Evidencia.listaProbable(['Proyecto Saneamiento Arraiján - La Chorrera', 'Resolución DEIA-IA-166-2018']), 'deia-166-2018');
+  assert.equal(Evidencia.listaProbable(['Documento cualquiera']), '');
+});

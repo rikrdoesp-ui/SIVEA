@@ -214,6 +214,18 @@ const Evidencia = (() => {
     return { fila, generales };
   }
 
+  /**
+   * Lista que corresponde al informe según sus primeras páginas, o '' si no se reconoce.
+   * El mensual va primero: su matriz también cita la resolución IA-067-2005.
+   */
+  function listaProbable(textos) {
+    const inicio = textos.slice(0, 8).join(' ').replace(/\s+/g, ' ');
+    if (/Informe\s+Mensual\s+No/i.test(inicio)) return 'mensual-r-pa03-20';
+    if (/DEIA-IA-166-2018|Arraij[aá]n/i.test(inicio)) return 'deia-166-2018';
+    if (/IA-?\s?067-2005|Ciudad\s+y\s+(?:la\s+)?Bah[ií]a/i.test(inicio)) return 'esia-067-2005';
+    return '';
+  }
+
   /** Lee del propio informe los datos que encabezan la ficha, si los encuentra. */
   function datosDelInforme(textos) {
     // Algunos informes traen la portada como imagen: el periodo aparece más adelante.
@@ -236,7 +248,7 @@ const Evidencia = (() => {
     };
   }
 
-  return { sugerir, seccionDe, datosDelInforme, rangos, frases, tituloResumido, REGLAS };
+  return { sugerir, seccionDe, listaProbable, datosDelInforme, rangos, frases, tituloResumido, REGLAS };
 })();
 
 if (typeof module !== 'undefined') module.exports = Evidencia;

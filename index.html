@@ -177,6 +177,15 @@
   .logo-app { flex: none; width: 32px; height: 32px; border-radius: 8px; box-shadow: 0 0 0 1px rgba(255, 255, 255, .18); }
   .marca-vacio { width: min(260px, 60%); height: auto; }
   .vacio-lista { font-size: 13px; color: var(--suave); text-align: center; }
+  /* Paso 1 de la pantalla inicial: la lista se elige a conciencia antes del informe */
+  .elegir-lista { border: 0; margin: 0; padding: 0; display: grid; gap: 8px; width: min(360px, 100%); }
+  .elegir-lista legend { font-weight: 600; margin-bottom: 8px; text-align: center; width: 100%; }
+  .opcion-lista { display: grid; gap: 2px; text-align: left; padding: 9px 14px; border: 1px solid var(--borde-campo, #7b8a99); border-radius: 8px; background: var(--papel); color: var(--tinta); }
+  .opcion-lista span { font-size: 12.5px; color: var(--suave); }
+  .opcion-lista:hover { background: var(--boton-hover); }
+  .opcion-lista[aria-pressed="true"] { border: 2px solid var(--acento); background: var(--seleccion); padding: 8px 13px; }
+  .opcion-lista[aria-pressed="true"] strong::before { content: "✓ "; color: var(--acento); }
+  .vacio .boton.inactivo { opacity: .45; pointer-events: none; }
   .vacio .boton { background: var(--acento); color: #fff; border-color: var(--acento); font-weight: 600; padding: 8px 18px; }
   .vacio .boton:hover { background: var(--acento-hover); }
   .app.soltando .vacio { background: var(--seleccion); border-color: var(--acento); }
@@ -367,8 +376,14 @@
         <img class="marca-vacio" src="iconos/marca-sivea.jpg" alt="SIVEA, Sistema Inteligente de Verificación Ambiental" width="480" height="480">
         <p id="vacio-titulo">Arrastra aquí el informe en PDF</p>
         <ul id="vacio-avances" hidden></ul>
-        <span id="vacio-lista" class="vacio-lista"></span>
-        <label class="boton" for="archivo">Elegir informe</label>
+        <fieldset class="elegir-lista" id="elegir-lista">
+          <legend>1. ¿Con qué lista vas a revisar?</legend>
+          <button type="button" class="opcion-lista" data-lista="esia-067-2005" aria-pressed="false"><strong>Semestral · Ciudad y Bahía</strong><span>Res. DINEORA IA-067-2005</span></button>
+          <button type="button" class="opcion-lista" data-lista="deia-166-2018" aria-pressed="false"><strong>Semestral · Arraiján - La Chorrera</strong><span>Res. DEIA-IA-166-2018</span></button>
+          <button type="button" class="opcion-lista" data-lista="mensual-r-pa03-20" aria-pressed="false"><strong>Mensual del contratista</strong><span>R-PA03-20</span></button>
+        </fieldset>
+        <span id="vacio-lista" class="vacio-lista" role="status"></span>
+        <label class="boton" for="archivo" id="elegir-informe">2. Elegir informe</label>
       </div>
       <div id="pagina-visor"><canvas id="lienzo" hidden aria-hidden="true"></canvas><div class="textLayer" id="capa-texto"></div></div>
     </div>
