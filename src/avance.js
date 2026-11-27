@@ -62,7 +62,47 @@ const Avance = (() => {
     return normalizar(datos.ficha, ids);
   }
 
-  return { CAMPOS, CAMPOS_MENSUALES, ESTADOS, MAX_LUGARES, PRIMERA_LISTA, LISTA_MENSUAL, vacio, normalizar, desdeCopia };
+  /** Los avances de la primera lista conservan la clave que tenían antes de haber varias listas. */
+  const prefijoDe = (lista) => (lista === PRIMERA_LISTA ? 'semestrales.borrador' : `semestrales.borrador.${lista}`);
+
+  /** Filas marcadas; en la mensual, el porcentaje de la sección C cuenta como una más. */
+  const contarHechas = (f, ids, conC) => ids.filter((id) => f.respuestas[id] && f.respuestas[id].estado).length + (conC && f.porcentajeC !== '' ? 1 : 0);
+
+  /**
+   * Avances con al menos una fila marcada guardados en `almacen` (localStorage) para una lista,
+   * del más reciente al más antiguo. Una clave dañada no esconde las demás.
+   */
+  function listar(almacen, lista, ids) {
+    const prefijo = prefijoDe(lista);
+    const conC = lista === LISTA_MENSUAL;
+    const encontrados = [];
+    let total = 0;
+    try { total = almacen.length; } catch { /* sin almacenamiento disponible */ }
+    for (let i = 0; i < total; i += 1) {
+      try {
+        const llave = almacen.key(i);
+        if (!llave.startsWith(`${prefijo}:`)) continue;
+        const m = /:(.*):\d+$/.exec(llave.slice(prefijo.length));
+        if (!m) continue;
+        const guardada = normalizar(JSON.parse(almacen.getItem(llave)), ids);
+        encontrados.push({ llave, lista, nombre: guardada.nombre || m[1], ficha: guardada, hechas: contarHechas(guardada, ids, conC), total: ids.length + (conC ? 1 : 0) });
+      } catch { /* esta clave no se pudo leer */ }
+    }
+    return encontrados.filter((a) => a.hechas > 0).sort((a, b) => b.ficha.actualizado - a.ficha.actualizado);
+  }
+
+  /** "hace 5 minutos", "ayer", "hace 3 días"; pasado un mes, la fecha. */
+  function cuando(ms, ahora = Date.now()) {
+    if (!ms) return 'sin fecha';
+    const relativo = new Intl.RelativeTimeFormat('es', { numeric: 'auto' });
+    const minutos = Math.round((ms - ahora) / 60000);
+    if (minutos > -60) return relativo.format(Math.min(minutos, -1), 'minute');
+    if (minutos > -1440) return relativo.format(Math.round(minutos / 60), 'hour');
+    if (minutos > -43200) return relativo.format(Math.round(minutos / 1440), 'day');
+    return new Date(ms).toLocaleDateString('es-PA', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  return { CAMPOS, CAMPOS_MENSUALES, ESTADOS, MAX_LUGARES, PRIMERA_LISTA, LISTA_MENSUAL, vacio, normalizar, desdeCopia, prefijoDe, contarHechas, listar, cuando };
 })();
 
 if (typeof module !== 'undefined') module.exports = Avance;

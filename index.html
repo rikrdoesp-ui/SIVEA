@@ -23,12 +23,14 @@
     --barra-borde: rgba(255, 255, 255, .26); --barra-hover: rgba(255, 255, 255, .12);
     --borde-tarjeta: #dde5ec; --boton-hover: #eef2f6;
     --columnas: minmax(620px, 50%) minmax(0, 1fr);
+    --curvas: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27500%27%20height%3D%27500%27%20fill%3D%27none%27%20stroke%3D%27white%27%20stroke-opacity%3D%27.06%27%20stroke-width%3D%271.2%27%3E%3Cpath%20d%3D%27M-20%2040%20C%2090%200%2C%20160%2090%2C%20260%2045%20S%20420%205%2C%20520%2055%27%2F%3E%3Cpath%20d%3D%27M-20%2095%20C%2090%2055%2C%20160%20145%2C%20260%20100%20S%20420%2060%2C%20520%20110%27%2F%3E%3Cpath%20d%3D%27M-20%20150%20C%2090%20110%2C%20160%20200%2C%20260%20155%20S%20420%20115%2C%20520%20165%27%2F%3E%3Cpath%20d%3D%27M-20%20205%20C%2090%20165%2C%20160%20255%2C%20260%20210%20S%20420%20170%2C%20520%20220%27%2F%3E%3Cpath%20d%3D%27M-20%20260%20C%2090%20220%2C%20160%20310%2C%20260%20265%20S%20420%20225%2C%20520%20275%27%2F%3E%3Cpath%20d%3D%27M-20%20315%20C%2090%20275%2C%20160%20365%2C%20260%20320%20S%20420%20280%2C%20520%20330%27%2F%3E%3Cpath%20d%3D%27M-20%20370%20C%2090%20330%2C%20160%20420%2C%20260%20375%20S%20420%20335%2C%20520%20385%27%2F%3E%3Cpath%20d%3D%27M-20%20425%20C%2090%20385%2C%20160%20475%2C%20260%20430%20S%20420%20390%2C%20520%20440%27%2F%3E%3C%2Fsvg%3E");
+    --sombra-tarjeta: 0 1px 2px rgba(16, 36, 58, .05), 0 6px 20px -8px rgba(16, 36, 58, .12);
     --sombra-hoja: 0 1px 2px rgba(16, 36, 58, .06), 0 4px 14px rgba(16, 36, 58, .07);
     --sombra-menu: 0 8px 24px rgba(16, 36, 58, .16), 0 2px 6px rgba(16, 36, 58, .08);
   }
   * { box-sizing: border-box; }
   html, body { height: 100%; }
-  body { margin: 0; color: var(--tinta); background: var(--mesa); font: 13.5px/1.3 "Segoe UI", system-ui, sans-serif; }
+  body { margin: 0; color: var(--tinta); background: radial-gradient(50rem 28rem at 100% 0, rgba(46, 124, 214, .08), transparent 70%) fixed, radial-gradient(40rem 26rem at 30% 100%, rgba(108, 194, 74, .08), transparent 70%) fixed, var(--mesa); font: 13.5px/1.3 "Segoe UI", system-ui, sans-serif; }
   button, input, select, textarea { font: inherit; color: inherit; }
   button { cursor: pointer; }
   button:disabled { cursor: default; opacity: .5; }
@@ -41,33 +43,51 @@
   main > h1 { position: absolute; width: 1px; height: 1px; margin: 0; overflow: hidden; clip-path: inset(50%); }
 
   /* Una sola barra, alineada con las dos hojas */
-  .barra { grid-column: 1 / -1; display: grid; grid-template-columns: var(--columnas); color: #fff; background: var(--barra); border-top: 3px solid transparent; border-image: var(--degradado) 1; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(11, 33, 64, .18); }
-  .barra-ficha, .controles { position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; min-width: 0; padding: 10px 14px; }
+  .barra { grid-column: 1 / -1; display: grid; grid-template-columns: var(--columnas); color: #fff; background: radial-gradient(30rem 8rem at 0% 0%, rgba(108, 194, 74, .16), transparent 70%), radial-gradient(30rem 8rem at 100% 0%, rgba(46, 124, 214, .2), transparent 70%), var(--curvas) center / 520px repeat, var(--barra); border-top: 3px solid transparent; border-image: var(--degradado) 1; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(11, 33, 64, .18); }
+  .barra-ficha, .controles { position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; min-width: 0; padding: 9px 14px; }
   .barra :focus-visible, .barra .boton:focus-within { outline: 2px solid #fff; outline-offset: 2px; }
   .vacio :focus-visible, .vacio .boton:focus-within { outline: 2px solid var(--marino); outline-offset: 2px; }
-  .boton, .controles button, .controles select, .controles input, #siguiente-pendiente, #tipo-ficha {
-    background: transparent; color: #fff; border: 1px solid var(--barra-borde); border-radius: 6px; padding: 5px 10px; white-space: nowrap; transition: background-color .12s;
+  /* Controles de la barra: sin borde, fondo tenue, radio 6; se agrupan en cápsulas. */
+  .boton, .controles button, .controles select, .controles input, #siguiente-pendiente, #ir-inicio {
+    display: inline-flex; align-items: center; gap: 6px; min-height: 34px; background: var(--barra-hover); color: #fff; border: 0; border-radius: 6px; padding: 0 12px; white-space: nowrap; transition: background-color .12s;
   }
   .boton { cursor: pointer; }
-  .boton:hover, .controles button:hover:enabled, #siguiente-pendiente:hover:enabled { background: var(--barra-hover); }
-  #nombre-informe { flex: 1 1 6em; min-width: 6em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .boton:hover, .controles button:hover:enabled, #ir-inicio:hover { background: rgba(255, 255, 255, .2); }
+  .ico { inline-size: 18px; block-size: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .chip-lista { padding: 3px 10px; border-radius: 999px; font-size: 12.5px; font-weight: 600; white-space: nowrap; color: #fff; background: color-mix(in srgb, var(--tono) 55%, transparent); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .22); }
+  .barra .separador { inline-size: 1px; align-self: stretch; margin-block: 4px; background: var(--barra-borde); }
+  #nombre-informe { flex: 1 1 6em; min-width: 4em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+  .progreso { display: grid; gap: 4px; min-inline-size: 118px; font-size: 12.5px; color: #d3dfea; }
   #avance { white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .progreso .pista { position: static; height: 4px; }
   .pista { position: absolute; left: 14px; right: 14px; bottom: 0; height: 3px; border-radius: 3px; background: var(--barra-hover); }
   #avance-barra, #lectura-barra { height: 100%; width: 0; background: var(--degradado); border-radius: 3px; }
   #avance-barra { transition: width .15s; }
+  #siguiente-pendiente { background: #fff; color: #0b2140; font-weight: 600; }
+  #siguiente-pendiente:hover:enabled { background: #dfe8f0; }
+  #siguiente-pendiente:disabled { background: var(--barra-hover); color: #fff; }
   .controles > * { flex: none; white-space: nowrap; }
   .controles > .pista { position: absolute; }
-  .controles select { flex: 1 1 100px; min-width: 90px; max-width: 280px; }
-  .controles select option, #tipo-ficha option { color: var(--tinta); background: var(--papel); }
-  #tipo-ficha { flex: 0 1 auto; min-width: 0; max-width: 200px; padding: 5px 8px; text-overflow: ellipsis; }
-  .controles input { width: 58px; text-align: right; margin-left: 4px; }
-  .controles button, .controles select, .controles input { padding: 5px 8px; }
-  .controles .grupo { display: flex; gap: 4px; }
-  .controles[inert] > :not(.pista) { opacity: .4; }
+  .controles .grupo { display: flex; align-items: center; gap: 2px; padding: 2px; border-radius: 8px; background: var(--barra-hover); }
+  .controles .grupo button { background: transparent; min-height: 30px; padding: 0 8px; }
+  .controles .grupo button:hover:enabled { background: rgba(255, 255, 255, .16); }
+  .controles .pagina-de { display: inline-flex; align-items: center; gap: 6px; padding: 0 6px; font-variant-numeric: tabular-nums; color: #d3dfea; }
+  .controles input { inline-size: 54px; min-height: 28px; padding: 0 6px; text-align: right; background: rgba(0, 0, 0, .25); }
+  .controles select { flex: 1 1 140px; min-width: 120px; max-width: 280px; }
+  .controles select option { color: var(--tinta); background: var(--papel); }
+  .controles .sin-informe { color: #b3c3d2; font-size: 13px; }
+  /* Si la columna de la ficha es angosta, "Cambiar informe" queda solo con su icono: la barra no baja a dos líneas. */
+  .barra-ficha { container: ficha / inline-size; }
+  .controles { container: visor / inline-size; }
+  @container ficha (max-width: 760px) { .chip-lista { display: none; } }
+  @container ficha (max-width: 660px) { .barra-ficha .texto-corto { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; } }
+  @container visor (max-width: 600px) { .controles .texto-corto { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; } .controles { gap: 6px; } .controles select { min-width: 0; flex: 1 1 60px; } .controles input { inline-size: 44px; } }
+  @container ficha (max-width: 820px) { .barra-ficha .texto-opcional { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; } }
+  .controles[inert] > :not(.pista, .sin-informe), .controles:not([inert]) .sin-informe { display: none; }
 
   /* Dos hojas sobre la mesa */
   .ficha { display: flex; flex-direction: column; min-height: 0; padding: 4px 8px 12px 14px; }
-  .hoja-ficha { flex: 1; min-height: 0; display: flex; flex-direction: column; background: var(--papel); border: 1px solid var(--borde-tarjeta); border-radius: 10px; overflow: hidden; box-shadow: var(--sombra-hoja); }
+  .hoja-ficha { flex: 1; min-height: 0; display: flex; flex-direction: column; background: var(--papel); border: 1px solid var(--borde-tarjeta); border-top: 4px solid var(--tono); border-radius: 14px; overflow: hidden; box-shadow: var(--sombra-tarjeta); }
   .hoja { flex: 1; min-height: 0; overflow: auto; }
   .membrete { display: grid; grid-template-columns: 62px 1fr 62px; align-items: center; background: var(--gris); border-bottom: 1px solid var(--linea); padding: 3px 8px; text-align: center; font-weight: 700; line-height: 1.2; }
   .membrete img { height: 38px; }
@@ -139,21 +159,20 @@
   .cierre textarea { border: 0; border-radius: 0; background: transparent; min-height: 66px; }
   .cierre.obs-general textarea { min-height: 110px; }
 
-  .pie-ficha { display: flex; gap: 12px; align-items: center; padding: 7px 10px; border-top: 1px solid var(--linea); background: var(--papel); }
+  .pie-ficha { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 10px 14px; border-top: 1px solid var(--linea); background: var(--papel); }
   .estados { flex: 1; min-width: 0; display: grid; gap: 2px; }
   #estado { margin: 0; color: var(--suave); line-height: 1.25; }
   #estado.error { color: var(--rojo); font-weight: 700; }
   /* Acciones secundarias del pie: fuera del camino del botón principal */
   .mas { position: relative; }
-  .mas summary { list-style: none; cursor: pointer; padding: 7px 12px; border: 1px solid var(--etiqueta); border-radius: 6px; white-space: nowrap; transition: background-color .12s; }
+  .mas summary { list-style: none; cursor: pointer; padding: 8px 14px; border: 1px solid var(--borde-tarjeta); border-radius: 8px; font-weight: 600; white-space: nowrap; transition: background-color .12s; }
   .mas summary::-webkit-details-marker { display: none; }
   .mas summary:hover, .mas[open] summary { background: var(--boton-hover); }
   .menu-mas { position: absolute; right: 0; bottom: calc(100% + 6px); z-index: 5; min-width: 230px; display: grid; padding: 4px 0; background: var(--papel); border: 1px solid var(--borde-tarjeta); border-radius: 8px; overflow: hidden; box-shadow: var(--sombra-menu); }
   .menu-mas button { border: 0; background: transparent; text-align: left; padding: 8px 12px; color: var(--tinta); }
   .menu-mas button:hover:enabled { background: var(--seleccion); }
   .menu-mas .peligro { color: var(--rojo); border-top: 1px solid var(--banda); }
-  #vacio-avances { margin: 0; padding: 0; list-style: none; font-size: 14px; color: var(--suave); display: grid; gap: 3px; }
-  #generar { background: var(--acento); color: #fff; border: 1px solid var(--acento); border-radius: 6px; padding: 7px 16px; transition: background-color .12s; font-weight: 600; white-space: nowrap; }
+  #generar { display: inline-flex; align-items: center; gap: 8px; background: var(--acento); color: #fff; border: 1px solid var(--acento); border-radius: 8px; padding: 8px 16px; box-shadow: 0 6px 14px -8px var(--acento); transition: background-color .12s; font-weight: 600; white-space: nowrap; }
   #generar:hover:enabled { background: var(--acento-hover); }
   #generar:focus-visible { outline: 2px solid var(--marino); outline-offset: 2px; }
 
@@ -162,6 +181,7 @@
   canvas { background: #fff; box-shadow: var(--sombra-hoja); vertical-align: top; }
   /* Capa de texto seleccionable sobre la hoja (de pdf_viewer.css de pdf.js) */
   #pagina-visor { position: relative; display: inline-block; vertical-align: top; }
+  #lienzo { display: block; border-radius: 4px; box-shadow: 0 1px 3px rgba(16, 36, 58, .08), 0 12px 32px -12px rgba(16, 36, 58, .25); }
   .textLayer { position: absolute; inset: 0; overflow: clip; text-align: initial; line-height: 1; text-size-adjust: none; forced-color-adjust: none; transform-origin: 0 0; caret-color: CanvasText; }
   .textLayer :is(span, br) { color: transparent; position: absolute; white-space: pre; cursor: text; transform-origin: 0 0; }
   .textLayer span.markedContent { top: 0; height: 0; }
@@ -172,22 +192,91 @@
   .textLayer ::selection { background: rgba(0, 90, 200, .35); color: transparent; }
 
   /* Antes de abrir un informe, la hoja de la derecha es donde se deja */
-  .vacio { height: 100%; aspect-ratio: 8.5 / 11; max-width: 100%; margin: 0 auto; display: grid; place-content: center; justify-items: center; gap: 16px; padding: 24px; border: 2px dashed var(--etiqueta); border-radius: 10px; background: var(--papel); color: var(--tinta); }
-  .vacio p { margin: 0; font-size: 22px; font-weight: 600; line-height: 1.2; max-width: 16em; }
+  .vacio { height: 100%; aspect-ratio: 8.5 / 11; max-width: 100%; margin: 0 auto; display: grid; place-content: center; justify-items: center; gap: 14px; padding: 24px; border: 2px dashed color-mix(in srgb, var(--tono) 30%, #fff); border-radius: 14px; box-shadow: var(--sombra-tarjeta); background: var(--papel); color: var(--tinta); }
+  .vacio p { margin: 0; font-size: 1.5rem; font-weight: 700; line-height: 1.2; max-width: 16em; text-wrap: balance; }
+  .vacio .vacio-sub { font-size: .95rem; font-weight: 400; color: var(--suave); margin-top: -6px; }
   .logo-app { flex: none; width: 32px; height: 32px; border-radius: 8px; box-shadow: 0 0 0 1px rgba(255, 255, 255, .18); }
-  .marca-vacio { width: min(260px, 60%); height: auto; }
-  .vacio-lista { font-size: 13px; color: var(--suave); text-align: center; }
-  /* Paso 1 de la pantalla inicial: la lista se elige a conciencia antes del informe */
-  .elegir-lista { border: 0; margin: 0; padding: 0; display: grid; gap: 8px; width: min(360px, 100%); }
-  .elegir-lista legend { font-weight: 600; margin-bottom: 8px; text-align: center; width: 100%; }
-  .opcion-lista { display: grid; gap: 2px; text-align: left; padding: 9px 14px; border: 1px solid var(--borde-campo, #7b8a99); border-radius: 8px; background: var(--papel); color: var(--tinta); }
-  .opcion-lista span { font-size: 12.5px; color: var(--suave); }
-  .opcion-lista:hover { background: var(--boton-hover); }
-  .opcion-lista[aria-pressed="true"] { border: 2px solid var(--acento); background: var(--seleccion); padding: 8px 13px; }
-  .opcion-lista[aria-pressed="true"] strong::before { content: "✓ "; color: var(--acento); }
-  .vacio .boton.inactivo { opacity: .45; pointer-events: none; }
-  .vacio .boton { background: var(--acento); color: #fff; border-color: var(--acento); font-weight: 600; padding: 8px 18px; }
-  .vacio .boton:hover { background: var(--acento-hover); }
+  .marca-vacio { width: min(210px, 50%); height: auto; margin-bottom: 6px; }
+  .vacio-lista:not(:empty) { padding: 3px 12px; border-radius: 999px; font-size: .82rem; font-weight: 600; color: var(--tono); background: color-mix(in srgb, var(--tono) 11%, #fff); }
+
+  /* Inicio: la marca a la izquierda; a la derecha, qué hacer y qué quedó guardado */
+  .lobby { position: fixed; inset: 0; z-index: 20; overflow: auto; overscroll-behavior: contain; display: grid; grid-template-columns: minmax(18rem, 2fr) 3fr; background: radial-gradient(50rem 28rem at 100% 0, rgba(46, 124, 214, .08), transparent 70%), radial-gradient(40rem 26rem at 40% 100%, rgba(108, 194, 74, .08), transparent 70%), var(--mesa); font-size: 1rem; line-height: 1.5; }
+  .lobby :focus-visible { outline: 2px solid var(--marino); outline-offset: 2px; }
+  .lobby-marca { position: relative; isolation: isolate; overflow: clip; display: grid; grid-template-rows: 1fr auto; min-block-size: 100dvb; padding: 3rem clamp(1.5rem, 4vw, 4rem) 1.75rem; color: #fff; border-block-start: 4px solid; border-image: var(--degradado) 1;
+    background: radial-gradient(36rem 26rem at 0% 100%, rgba(108, 194, 74, .22), transparent 65%), radial-gradient(30rem 24rem at 100% 0%, rgba(46, 124, 214, .28), transparent 65%), var(--curvas) center / 520px repeat, var(--barra); }
+  .lobby-marca::after { content: ""; position: absolute; inset-block: 0; inset-inline-end: 0; inline-size: 1px; background: linear-gradient(180deg, transparent, rgba(255, 255, 255, .18), transparent); }
+  .lobby-nombre { align-self: safe center; display: grid; justify-items: start; gap: .35rem; max-inline-size: 30rem; }
+  .lobby-logo { position: relative; margin-block-end: 1.5rem; }
+  .lobby-logo::before { content: ""; position: absolute; inset: -18px; z-index: -1; border-radius: 50%; background: radial-gradient(closest-side, rgba(108, 194, 74, .45), rgba(46, 124, 214, .2) 60%, transparent); filter: blur(6px); }
+  .lobby-logo img { display: block; inline-size: 5.5rem; block-size: auto; border-radius: 1.4rem; box-shadow: 0 0 0 1px rgba(255, 255, 255, .14), 0 14px 34px rgba(0, 0, 0, .4); }
+  .lobby-nombre h1 { margin: 0; font-size: clamp(3rem, 2rem + 3.5vw, 5rem); line-height: .95; font-weight: 800; letter-spacing: .02em; }
+  .lobby-nombre h1 span { background: linear-gradient(135deg, #8bd65f, #3fae6a); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .lobby-lema { margin: .35rem 0 0; font-size: 1.15rem; font-weight: 500; color: #e3ecf4; text-wrap: balance; }
+  .lobby-lema::after { content: ""; display: block; inline-size: 3rem; block-size: 3px; margin-block-start: 1.25rem; border-radius: 3px; background: var(--degradado); }
+  .lobby-que { margin: 1.25rem 0 0; max-inline-size: 36ch; font-size: .98rem; color: #c3d2df; text-wrap: pretty; }
+  .lobby-ventajas { list-style: none; margin: 1.5rem 0 0; padding: 0; display: grid; gap: .75rem; }
+  .lobby-ventajas li { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: .75rem; font-size: .92rem; color: #dbe6f0; }
+  .lobby-ventajas .ico { inline-size: 2.1rem; block-size: 2.1rem; padding: .45rem; border-radius: 10px; color: #8bd65f; background: rgba(108, 194, 74, .14); box-shadow: inset 0 0 0 1px rgba(139, 214, 95, .25); stroke-width: 2; }
+  .lobby-creditos { margin: 2rem 0 0; padding-block-start: 1rem; border-block-start: 1px solid rgba(255, 255, 255, .16); font-size: .85rem; color: #a9bccd; }
+  .lobby-trabajo { grid-column: auto; grid-template-columns: minmax(0, 1fr); min-height: auto; align-self: safe center; display: grid; gap: 2.25rem; inline-size: 100%; max-inline-size: 54rem; padding: 3rem clamp(1.25rem, 4vw, 4rem); }
+  .lobby-trabajo h2 { display: flex; align-items: center; gap: .5rem; margin: 0 0 .85rem; font-size: 1.2rem; line-height: 1.25; }
+  .lobby-cuenta:not(:empty) { min-inline-size: 1.6rem; padding: 0 .45rem; border-radius: 999px; background: var(--banda); color: var(--marino); font-size: .8rem; font-weight: 700; text-align: center; }
+  .lobby-opciones { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 1rem; }
+  /* Cada lista tiene su tono; el resto de la tarjeta es neutro. Radios: tarjetas 14, iconos 12, botones 8. */
+  .opcion-lista, .lobby-avance, .app { --tono: var(--marino); }
+  [data-lista="deia-166-2018"] { --tono: #0c6b6e; }
+  [data-lista="mensual-r-pa03-20"] { --tono: var(--acento); }
+  .opcion-lista { position: relative; display: grid; grid-template-rows: auto auto auto 1fr auto; justify-items: start; gap: .15rem; padding: 1.25rem 1.25rem 1.1rem; border: 1px solid var(--borde-tarjeta); border-radius: 14px; color: var(--tinta); text-align: start; overflow: clip;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--tono) 9%, #fff) 0, #fff 5.5rem);
+    box-shadow: var(--sombra-tarjeta);
+    transition: transform .2s cubic-bezier(.23, 1, .32, 1), box-shadow .2s, border-color .2s; }
+  .opcion-lista::before { content: ""; position: absolute; inset: 0 0 auto; block-size: 4px; background: var(--tono); }
+  .opcion-lista:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--tono) 45%, #fff); box-shadow: 0 2px 4px rgba(16, 36, 58, .06), 0 16px 32px -12px color-mix(in srgb, var(--tono) 45%, transparent); }
+  .opcion-lista:active { transform: translateY(-1px) scale(.99); }
+  .opcion-lista .icono-lista { inline-size: 3rem; block-size: 3rem; border-radius: 12px; display: grid; place-items: center; margin-block-end: .9rem; color: #fff; background: var(--tono); box-shadow: 0 6px 14px -6px var(--tono); }
+  .opcion-lista .icono-lista .ico { inline-size: 1.6rem; block-size: 1.6rem; }
+  .opcion-lista .tipo { font-size: .75rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--tono); }
+  .opcion-lista strong { font-size: 1.1rem; line-height: 1.25; text-wrap: balance; }
+  .opcion-lista .norma { font-size: .83rem; color: var(--suave); }
+  .opcion-lista .cta { display: inline-flex; align-items: center; gap: .35rem; margin-block-start: 1rem; font-size: .9rem; font-weight: 600; color: var(--tono); }
+  .opcion-lista .cta .ico, .lobby-seguir .cta .ico { inline-size: 1rem; block-size: 1rem; transition: transform .2s cubic-bezier(.23, 1, .32, 1); }
+  .opcion-lista:hover .cta .ico, .lobby-seguir:hover .cta .ico { transform: translateX(3px); }
+  .lobby-avances { list-style: none; margin: 0; padding: 0; display: grid; gap: .75rem; }
+  .lobby-avance { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; border: 1px solid var(--borde-tarjeta); border-radius: 14px; background: var(--papel); box-shadow: var(--sombra-tarjeta); transition: box-shadow .2s, border-color .2s; }
+  .lobby-avance:hover { border-color: color-mix(in srgb, var(--tono) 45%, #fff); box-shadow: 0 2px 4px rgba(16, 36, 58, .06), 0 14px 28px -12px color-mix(in srgb, var(--tono) 40%, transparent); }
+  .lobby-seguir { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 1rem; min-inline-size: 0; padding: 1rem 1.1rem; border: 0; border-radius: 14px 0 0 14px; background: transparent; color: var(--tinta); text-align: start; }
+  .lobby-seguir .anillo { --p: 0; position: relative; inline-size: 3.25rem; block-size: 3.25rem; border-radius: 50%; display: grid; place-items: center; font-size: .78rem; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--tono); background: conic-gradient(var(--tono) calc(var(--p) * 1%), var(--gris) 0); }
+  .lobby-seguir .anillo::before { content: ""; position: absolute; inset: 5px; border-radius: 50%; background: var(--papel); }
+  .lobby-seguir .anillo > * { position: relative; }
+  .lobby-seguir .anillo.completo { --tono: var(--acento); background: var(--acento); color: #fff; }
+  .lobby-seguir .anillo.completo::before { display: none; }
+  .lobby-seguir .anillo .ico { inline-size: 1.5rem; block-size: 1.5rem; stroke-width: 2.5; }
+  .lobby-seguir .cuerpo { display: grid; gap: .35rem; min-inline-size: 0; }
+  .lobby-seguir strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 1.02rem; }
+  .lobby-seguir .detalle { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .6rem; font-size: .85rem; color: var(--suave); }
+  .lobby-seguir .chip { padding: .05rem .55rem; border-radius: 999px; font-size: .78rem; font-weight: 600; color: var(--tono); background: color-mix(in srgb, var(--tono) 11%, #fff); }
+  .lobby-seguir .fecha::before { content: "·"; margin-inline-end: .6rem; }
+  .lobby-seguir .cta { display: inline-flex; align-items: center; gap: .35rem; padding: .45rem .85rem; border-radius: 8px; font-size: .9rem; font-weight: 600; color: #fff; background: var(--tono); }
+  .lobby-borrar { display: grid; place-items: center; inline-size: 2.5rem; block-size: 2.5rem; margin-inline-end: .75rem; border: 0; border-radius: 8px; background: transparent; color: var(--suave); }
+  .lobby-borrar:hover { background: #fbecee; color: var(--rojo); }
+  .lobby-borrar .ico { inline-size: 1.15rem; block-size: 1.15rem; }
+  @keyframes lobby-subir { from { opacity: 0; transform: translateY(10px); } }
+  .lobby:not([hidden]) :is(.opcion-lista, .lobby-avance) { animation: lobby-subir .35s cubic-bezier(.23, 1, .32, 1) both; }
+  .lobby-opciones > :nth-child(2) { animation-delay: 50ms; }
+  .lobby-opciones > :nth-child(3) { animation-delay: 100ms; }
+  .lobby-avance:nth-child(n + 2) { animation-delay: 150ms; }
+  @media (prefers-reduced-motion: reduce) { .lobby * { animation: none !important; transition: none !important; } }
+  @media (max-width: 40rem) { .lobby-seguir .cta { display: none; } }
+  .lobby-vacio { margin: 0; padding: 1.1rem; border: 1px dashed var(--borde-mesa); border-radius: 10px; color: var(--suave); }
+  .lobby-pie { margin: 0; font-size: .85rem; color: var(--suave); }
+  @media (max-width: 56rem) {
+    .lobby { grid-template-columns: 1fr; align-content: start; }
+    .lobby-marca { min-block-size: auto; padding-block: 2rem 1.25rem; }
+    .lobby-logo img { inline-size: 4rem; border-radius: 1rem; } .lobby-logo { margin-block-end: .75rem; }
+    .lobby-trabajo { padding-block: 2rem; }
+  }
+  .vacio .boton { background: var(--tono); color: #fff; font-weight: 600; padding: 0 20px; min-height: 42px; border-radius: 8px; box-shadow: 0 8px 18px -8px var(--tono); }
+  .vacio .boton:hover { background: color-mix(in srgb, var(--tono) 85%, #000); }
   .app.soltando .vacio { background: var(--seleccion); border-color: var(--acento); }
   .app.soltando #visor { box-shadow: inset 0 0 0 3px var(--acento); }
 
@@ -262,30 +351,27 @@
   <header class="barra">
     <div class="barra-ficha">
       <img class="logo-app" src="iconos/icon-192.png" alt="SIVEA" title="SIVEA · Sistema Inteligente de Verificación Ambiental" width="30" height="30">
-      <select id="tipo-ficha" aria-label="Lista de verificación a usar" title="Lista de verificación a usar">
-        <option value="esia-067-2005">Ciudad y Bahía (IA-067-2005)</option>
-        <option value="deia-166-2018">Arraiján - La Chorrera (DEIA-IA-166-2018)</option>
-        <option value="mensual-r-pa03-20">Mensual (R-PA03-20)</option>
-      </select>
-      <label class="boton"><span id="etiqueta-archivo">Elegir informe</span><input id="archivo" class="oculto" type="file" accept="application/pdf" aria-label="Elegir informe en PDF"></label>
+      <button id="ir-inicio" type="button"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 11.5 12 4l9 7.5M5.5 9.5V20h13V9.5"/></svg><span class="texto-corto">Inicio</span></button>
+      <span class="chip-lista" id="chip-lista"></span>
+      <span class="separador" aria-hidden="true"></span>
       <span id="nombre-informe"></span>
-      <span id="avance"></span>
-      <button id="siguiente-pendiente" type="button" disabled>Siguiente sin revisar</button>
-      <div class="pista"><div id="avance-barra"></div></div>
+      <label class="boton" title="Elegir o cambiar el informe en PDF"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 3H6.5A1.5 1.5 0 0 0 5 4.5v15A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5V8zM14 3v5h5"/></svg><span id="etiqueta-archivo" class="texto-opcional">Elegir informe</span><input id="archivo" class="oculto" type="file" accept="application/pdf" aria-label="Elegir informe en PDF"></label>
+      <div class="progreso"><span id="avance"></span><div class="pista"><div id="avance-barra"></div></div></div>
+      <button id="siguiente-pendiente" type="button" disabled>Siguiente sin revisar<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
     </div>
     <div class="controles" id="controles" inert>
-      <div class="grupo">
-        <button id="previa" type="button">Anterior</button>
-        <button id="siguiente" type="button">Siguiente</button>
+      <span class="sin-informe">Elige un informe para ver sus páginas.</span>
+      <div class="grupo" role="group" aria-label="Páginas">
+        <button id="previa" type="button" aria-label="Página anterior" title="Página anterior"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15 5l-7 7 7 7"/></svg></button>
+        <label class="pagina-de"><span class="oculto">Página</span><input id="pagina" type="number" min="1" step="1" value="1"> / <span id="total">–</span></label>
+        <button id="siguiente" type="button" aria-label="Página siguiente" title="Página siguiente"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 5l7 7-7 7"/></svg></button>
       </div>
-      <label>Página <input id="pagina" type="number" min="1" step="1" value="1"></label>
-      <span>de <span id="total">–</span></span>
-      <div class="grupo">
-        <button id="zoom-menos" type="button" aria-label="Alejar">−</button>
-        <button id="zoom-ajustar" type="button">Ajustar</button>
-        <button id="zoom-mas" type="button" aria-label="Acercar">+</button>
-        <button id="girar" type="button">Girar</button>
+      <div class="grupo" role="group" aria-label="Tamaño">
+        <button id="zoom-menos" type="button" aria-label="Alejar" title="Alejar"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12h14"/></svg></button>
+        <button id="zoom-ajustar" type="button" title="Ajustar al ancho">Ajustar</button>
+        <button id="zoom-mas" type="button" aria-label="Acercar" title="Acercar"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 5v14M5 12h14"/></svg></button>
       </div>
+      <button id="girar" type="button" title="Girar la página"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg><span class="texto-corto">Girar</span></button>
       <button id="volver-mosaico" type="button" hidden>Volver a las hojas</button>
       <select id="ir-anexo" disabled aria-label="Ir a un anexo"><option value="">Ir a un anexo</option></select>
       <div class="pista"><div id="lectura-barra"></div></div>
@@ -295,7 +381,7 @@
   <h1>SIVEA, revisión de informe</h1>
   <section class="ficha" aria-label="Lista de verificación">
     <div class="hoja-ficha">
-      <div class="hoja" id="hoja" inert>
+      <div class="hoja" id="hoja">
         <div id="cab-semestral">
         <div class="membrete">
           <img id="logo" alt="Programa Saneamiento de Panamá">
@@ -347,7 +433,7 @@
           </div>
         </details>
         <input id="archivo-copia" class="oculto" type="file" accept=".json,application/json" tabindex="-1" aria-label="Elegir copia de avance">
-        <button id="generar" type="button" disabled>Generar ficha PDF</button>
+        <button id="generar" type="button" disabled><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 3H6.5A1.5 1.5 0 0 0 5 4.5v15A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5V8zM14 3v5h5M9 14l2 2 4-4"/></svg>Generar ficha PDF</button>
       </div>
     </div>
     <div id="detalle" hidden>
@@ -375,15 +461,9 @@
       <div class="vacio" id="vacio">
         <img class="marca-vacio" src="iconos/marca-sivea.jpg" alt="SIVEA, Sistema Inteligente de Verificación Ambiental" width="480" height="480">
         <p id="vacio-titulo">Arrastra aquí el informe en PDF</p>
-        <ul id="vacio-avances" hidden></ul>
-        <fieldset class="elegir-lista" id="elegir-lista">
-          <legend>1. ¿Con qué lista vas a revisar?</legend>
-          <button type="button" class="opcion-lista" data-lista="esia-067-2005" aria-pressed="false"><strong>Semestral · Ciudad y Bahía</strong><span>Res. DINEORA IA-067-2005</span></button>
-          <button type="button" class="opcion-lista" data-lista="deia-166-2018" aria-pressed="false"><strong>Semestral · Arraiján - La Chorrera</strong><span>Res. DEIA-IA-166-2018</span></button>
-          <button type="button" class="opcion-lista" data-lista="mensual-r-pa03-20" aria-pressed="false"><strong>Mensual del contratista</strong><span>R-PA03-20</span></button>
-        </fieldset>
-        <span id="vacio-lista" class="vacio-lista" role="status"></span>
-        <label class="boton" for="archivo" id="elegir-informe">2. Elegir informe</label>
+        <p class="vacio-sub">o elígelo desde tu equipo</p>
+        <span id="vacio-lista" class="vacio-lista"></span>
+        <label class="boton" for="archivo"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 16V4M7 9l5-5 5 5M5 15v3.5A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5V15"/></svg>Elegir informe</label>
       </div>
       <div id="pagina-visor"><canvas id="lienzo" hidden aria-hidden="true"></canvas><div class="textLayer" id="capa-texto"></div></div>
     </div>
@@ -400,6 +480,38 @@
       <div id="rejilla"></div>
     </div>
   </section>
+  </main>
+</div>
+<div class="lobby" id="lobby" hidden>
+  <header class="lobby-marca">
+    <div class="lobby-nombre">
+      <div class="lobby-logo"><img src="iconos/icon-192.png" alt="" width="96" height="96"></div>
+      <h1>SIVE<span>A</span></h1>
+      <p class="lobby-lema">Sistema Inteligente de Verificación Ambiental</p>
+      <p class="lobby-que">Revisa informes de seguimiento ambiental y arma la lista de verificación por ti.</p>
+      <ul class="lobby-ventajas">
+        <li><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 4h6v3H9zM9 5.5H6.5A1.5 1.5 0 0 0 5 7v12.5A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5V7a1.5 1.5 0 0 0-1.5-1.5H15M8.5 12h7M8.5 16h4.5"/></svg>Llena los datos del informe: proyecto, contratista y período.</li>
+        <li><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M10.5 4a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13zM20 20l-4.7-4.7"/></svg>Te señala en qué páginas y anexos está la evidencia de cada requisito.</li>
+        <li><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 3H6.5A1.5 1.5 0 0 0 5 4.5v15A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5V8zM14 3v5h5M9 14l2 2 4-4"/></svg>Calcula el puntaje mensual y nombra el PDF con el formato oficial.</li>
+      </ul>
+    </div>
+    <p class="lobby-creditos">SIVEA · Creado por Ricardo Espino G.</p>
+  </header>
+  <main class="lobby-trabajo">
+    <section aria-labelledby="lobby-nueva">
+      <h2 id="lobby-nueva">Empezar una revisión nueva</h2>
+      <div class="lobby-opciones">
+        <button type="button" class="opcion-lista" data-lista="esia-067-2005"><span class="icono-lista"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 8.5c1.6 0 2.4-1.5 4.5-1.5S10.4 8.5 12 8.5s2.4-1.5 4.5-1.5S19.4 8.5 21 8.5M3 13c1.6 0 2.4-1.5 4.5-1.5S10.4 13 12 13s2.4-1.5 4.5-1.5S19.4 13 21 13M3 17.5c1.6 0 2.4-1.5 4.5-1.5s2.9 1.5 4.5 1.5 2.4-1.5 4.5-1.5 2.9 1.5 4.5 1.5"/></svg></span><span class="tipo">Semestral</span><strong>Ciudad y Bahía de Panamá</strong><span class="norma">Res. DINEORA IA-067-2005</span><span class="cta" aria-hidden="true">Empezar<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></button>
+        <button type="button" class="opcion-lista" data-lista="deia-166-2018"><span class="icono-lista"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 12h18M7 12V7M17 12v5M5 5a2 2 0 1 0 4 0a2 2 0 1 0-4 0M15 19a2 2 0 1 0 4 0a2 2 0 1 0-4 0"/></svg></span><span class="tipo">Semestral</span><strong>Arraiján - La Chorrera</strong><span class="norma">Res. DEIA-IA-166-2018</span><span class="cta" aria-hidden="true">Empezar<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></button>
+        <button type="button" class="opcion-lista" data-lista="mensual-r-pa03-20"><span class="icono-lista"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5.5 5h13A1.5 1.5 0 0 1 20 6.5v12a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18.5v-12A1.5 1.5 0 0 1 5.5 5zM4 10h16M8 3v4M16 3v4"/></svg></span><span class="tipo">Mensual</span><strong>Gestión ambiental del contratista</strong><span class="norma">R-PA03-20</span><span class="cta" aria-hidden="true">Empezar<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></button>
+      </div>
+    </section>
+    <section aria-labelledby="lobby-seguir">
+      <h2 id="lobby-seguir">Seguir un informe <span class="lobby-cuenta" id="lobby-cuenta" aria-hidden="true"></span></h2>
+      <ul class="lobby-avances" id="lobby-avances"></ul>
+      <p class="lobby-vacio" id="lobby-vacio" hidden>No hay informes guardados en este equipo. Cuando empieces uno, aparecerá aquí.</p>
+    </section>
+    <p class="lobby-pie">El avance se guarda solo en este equipo. Para seguir un informe hay que volver a elegir el mismo PDF.</p>
   </main>
 </div>
 <dialog id="vista-previa" aria-label="Vista previa de la ficha">

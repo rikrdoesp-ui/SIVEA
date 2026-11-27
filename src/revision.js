@@ -19,8 +19,7 @@
     if (Object.hasOwn(FICHAS, guardada)) fichaElegida = guardada;
   } catch { /* sin almacenamiento: primera ficha */ }
   const catalogo = JSON.parse(await Recursos.texto(FICHAS[fichaElegida]));
-  // Los avances de la primera ficha conservan la clave que tenían antes.
-  const PREFIJO = fichaElegida === PRIMERA_LISTA ? 'semestrales.borrador' : `semestrales.borrador.${fichaElegida}`;
+  const PREFIJO = Avance.prefijoDe(fichaElegida);
   const mensual = fichaElegida === LISTA_MENSUAL;
   const requisitos = catalogo.secciones.flatMap((s) => s.items);
   // La sección numérica de la lista mensual (C) no se marca SI/NO/N/A: no cuenta como fila.
@@ -89,47 +88,28 @@
     }
   }
 
-  const contarHechas = (f) => ids.filter((id) => f.respuestas[id] && f.respuestas[id].estado).length + (mensual && f.porcentajeC !== '' ? 1 : 0);
+  const contarHechas = (f) => Avance.contarHechas(f, ids, mensual);
 
-  /** Los avances guardados en este navegador, del más reciente al más antiguo. */
+  /** Los avances de la lista abierta guardados en este navegador. */
   function avancesGuardados() {
-    const lista = [];
-    let total = 0;
-    try { total = localStorage.length; } catch { /* sin almacenamiento disponible */ }
-    for (let i = 0; i < total; i += 1) {
-      try { // una clave dañada no esconde las demás
-        const llave = localStorage.key(i);
-        if (!llave.startsWith(`${PREFIJO}:`)) continue;
-        const m = /:(.*):\d+$/.exec(llave.slice(PREFIJO.length));
-        if (!m) continue;
-        const guardada = normalizar(JSON.parse(localStorage.getItem(llave)));
-        lista.push({ llave, nombre: guardada.nombre || m[1], ficha: guardada, hechas: contarHechas(guardada) });
-      } catch { /* esta clave no se pudo leer */ }
-    }
-    return lista.filter((a) => a.hechas > 0).sort((a, b) => b.ficha.actualizado - a.ficha.actualizado);
+    try { return Avance.listar(localStorage, fichaElegida, ids); } catch { return []; }
   }
 
   const ACCIONES_DE_AVANCE = ['generar', 'reiniciar', 'siguiente-pendiente', 'guardar-copia', 'cargar-copia'];
 
-  /**
-   * Al abrir la página queda abierto el último avance: se puede seguir marcando, borrarlo,
-   * copiarlo o generar la ficha. El PDF solo hace falta para ver la evidencia.
-   */
-  function mostrarAvanceAlIniciar() {
-    const avances = avancesGuardados();
-    if (!avances.length) return;
-    const [ultimo] = avances;
-    ficha = ultimo.ficha;
-    clave = ultimo.llave;
-    nombreArchivo = ultimo.nombre;
+  /** Deja abierto el avance elegido en el inicio: se puede marcar, copiar o generar la ficha sin el PDF. */
+  function abrirAvanceGuardado(llave) {
+    const elegido = avancesGuardados().find((a) => a.llave === llave);
+    if (!elegido) return;
+    ficha = elegido.ficha;
+    clave = elegido.llave;
+    nombreArchivo = elegido.nombre;
     for (const boton of ACCIONES_DE_AVANCE) $(boton).disabled = false;
-    $('hoja').inert = false;
-    ponerNombre(ultimo.nombre);
-    $('vacio-titulo').textContent = `Vuelve a elegir ${ultimo.nombre} para continuar`;
-    const lista = $('vacio-avances');
-    lista.replaceChildren(...avances.slice(0, 5).map((a) => crear('li', '', `${a.nombre}: ${a.hechas} de ${TOTAL} revisados`)));
-    lista.hidden = false;
-    avisar(`Tu avance sigue guardado: ${ultimo.hechas} de ${TOTAL} revisados. Puedes seguir marcando; elige el mismo PDF para ver la evidencia.`);
+    bloquearHoja(false);
+    ponerNombre(elegido.nombre);
+    $('vacio-titulo').textContent = `Elige ${elegido.nombre} para ver la evidencia`;
+    pintarFicha();
+    avisar(`Seguimos con ${elegido.nombre}: ${elegido.hechas} de ${TOTAL} revisados. Puedes marcar ya; elige el mismo PDF para ver la evidencia.`);
   }
 
   // El título deja ver el nombre completo cuando la barra lo recorta.
@@ -225,6 +205,24 @@
     const presentes = paginas.split(/[\s,;]+/).filter(Boolean);
     return presentes.includes(pagina) ? paginas : [...presentes, pagina].join(', ');
   };
+
+  // Sin informe ni avance abierto no se marca la ficha, pero se puede recorrer:
+  // se bloquea su contenido y no la hoja, que es la que se desplaza.
+  let hojaBloqueada = false;
+  function bloquearHoja(bloquear) {
+    hojaBloqueada = bloquear;
+    const hoja = $('hoja');
+    for (const hijo of hoja.children) hijo.inert = bloquear;
+    if (bloquear) {
+      hoja.tabIndex = 0;
+      hoja.setAttribute('role', 'region');
+      hoja.setAttribute('aria-label', 'Ficha, se activa al elegir el informe');
+    } else {
+      hoja.removeAttribute('tabindex');
+      hoja.removeAttribute('role');
+      hoja.removeAttribute('aria-label');
+    }
+  }
 
   /** Sin PDF abierto no hay página que tomar. */
   function hayInforme() {
@@ -790,7 +788,17 @@
   // --- Elección de la lista: se confirma en cada sesión, antes de elegir el informe ---
   const CLAVE_CONFIRMADA = 'semestrales.listaConfirmada';
   const CLAVE_REABRIR = 'semestrales.reabrirInforme';
-  const nombreLista = (id) => ([...$('tipo-ficha').options].find((o) => o.value === id) || {}).textContent || id;
+  const CLAVE_CONTINUAR = 'semestrales.continuar';
+  const LISTAS = {
+    [PRIMERA_LISTA]: 'Semestral · Ciudad y Bahía',
+    'deia-166-2018': 'Semestral · Arraiján - La Chorrera',
+    [LISTA_MENSUAL]: 'Mensual del contratista',
+  };
+  const nombreLista = (id) => LISTAS[id] || id;
+  const sesion = {
+    leer: (k) => { try { return sessionStorage.getItem(k); } catch { return null; } },
+    poner: (k, v) => { try { if (v === null) sessionStorage.removeItem(k); else sessionStorage.setItem(k, v); } catch { /* sin almacenamiento de sesión */ } },
+  };
 
   function listaConfirmada() {
     try {
@@ -800,31 +808,108 @@
     }
   }
 
-  function pintarEleccionDeLista() {
-    const confirmada = listaConfirmada();
-    for (const b of document.querySelectorAll('.opcion-lista')) b.setAttribute('aria-pressed', String(confirmada && b.dataset.lista === fichaElegida));
-    $('elegir-informe').classList.toggle('inactivo', !confirmada);
-    $('vacio-lista').textContent = confirmada ? `Vas a revisar con: ${nombreLista(fichaElegida)}.` : 'Primero elige la lista; después, el informe.';
+  // --- Inicio: qué hacer y qué quedó a medias en las tres listas ---
+  const cuando = (ms) => Avance.cuando(ms);
+  const SVG = 'http://www.w3.org/2000/svg';
+  function icono(d) {
+    const svg = document.createElementNS(SVG, 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('aria-hidden', 'true');
+    svg.classList.add('ico');
+    const trazo = document.createElementNS(SVG, 'path');
+    trazo.setAttribute('d', d);
+    svg.append(trazo);
+    return svg;
   }
+  const TRAZO_PAPELERA = 'M4 7h16M10 11v6M14 11v6M6 7l1 12a1.5 1.5 0 0 0 1.5 1.4h7a1.5 1.5 0 0 0 1.5-1.4L18 7M9 7V4.5h6V7';
+  const TRAZO_FLECHA = 'M5 12h14M13 6l6 6-6 6';
+  const TRAZO_CHECK = 'M5 12.5l4.5 4.5L19 7.5';
 
-  function confirmarLista() {
-    try { sessionStorage.setItem(CLAVE_CONFIRMADA, fichaElegida); } catch { /* sin almacenamiento de sesión */ }
-    pintarEleccionDeLista();
-    avisar(`Lista elegida: ${nombreLista(fichaElegida)}. Ahora elige el informe.`);
-  }
-
-  /** Cambia de lista (recarga la página). Devuelve false si no se cambió. */
-  function cambiarLista(lista, { sinPreguntar = false } = {}) {
-    if (!sinPreguntar && hayInforme() && !window.confirm('Se cerrará el informe abierto. Tu avance queda guardado. ¿Cambiar de lista?')) return false;
-    try {
-      localStorage.setItem(CLAVE_FICHA, lista);
-      sessionStorage.setItem(CLAVE_CONFIRMADA, lista);
-      window.location.reload();
-      return true;
-    } catch {
-      avisar('No se pudo cambiar de lista: este navegador no permite guardar datos.', true);
-      return false;
+  async function avancesDeTodasLasListas() {
+    const todos = [];
+    for (const [lista, recurso] of Object.entries(FICHAS)) {
+      try {
+        const cat = lista === fichaElegida ? catalogo : JSON.parse(await Recursos.texto(recurso));
+        const idsLista = cat.secciones.filter((s) => !s.numerico).flatMap((s) => s.items).map((r) => r.id);
+        todos.push(...Avance.listar(localStorage, lista, idsLista));
+      } catch { /* esa lista no se pudo leer: sus avances no se muestran */ }
     }
+    return todos.sort((x, y) => y.ficha.actualizado - x.ficha.actualizado);
+  }
+
+  /** Lleva a la lista elegida; si es otra, recarga la página con ella. */
+  function entrar(lista, llave) {
+    sesion.poner(CLAVE_CONFIRMADA, lista);
+    sesion.poner(CLAVE_CONTINUAR, llave);
+    if (lista !== fichaElegida) {
+      try {
+        localStorage.setItem(CLAVE_FICHA, lista);
+      } catch {
+        avisar('No se pudo cambiar de lista: este navegador no permite guardar datos.', true);
+        return;
+      }
+      window.location.reload();
+      return;
+    }
+    const desdeInicio = !$('lobby').hidden;
+    $('lobby').hidden = true;
+    $('app').inert = false;
+    $('vacio-lista').textContent = nombreLista(fichaElegida);
+    if (llave) abrirAvanceGuardado(llave);
+    if (desdeInicio) $('archivo').focus(); // lo siguiente es elegir el PDF
+  }
+
+  async function mostrarInicio() {
+    $('app').inert = true;
+    $('lobby').hidden = false;
+    const avances = await avancesDeTodasLasListas();
+    $('lobby-vacio').hidden = avances.length > 0;
+    $('lobby-cuenta').textContent = avances.length ? String(avances.length) : '';
+    $('lobby-avances').replaceChildren(...avances.map((a) => {
+      const item = crear('li', 'lobby-avance');
+      item.dataset.lista = a.lista;
+      const seguir = crear('button', 'lobby-seguir');
+      seguir.type = 'button';
+      const pct = Math.round((a.hechas / a.total) * 100);
+      const completo = a.hechas >= a.total;
+      const anillo = crear('span', completo ? 'anillo completo' : 'anillo');
+      anillo.setAttribute('aria-hidden', 'true');
+      anillo.style.setProperty('--p', String(pct));
+      anillo.append(completo ? icono(TRAZO_CHECK) : crear('span', '', `${pct}%`));
+      const cuerpo = crear('span', 'cuerpo');
+      const detalle = crear('span', 'detalle');
+      detalle.append(
+        crear('span', 'chip', nombreLista(a.lista).replace('Semestral · ', '')),
+        crear('span', '', completo ? 'Lista para generar la ficha' : `${a.hechas} de ${a.total} revisados`),
+        crear('span', 'fecha', cuando(a.ficha.actualizado)),
+      );
+      const titulo = crear('strong', '', a.nombre);
+      titulo.title = a.nombre;
+      cuerpo.append(titulo, detalle);
+      const ir = crear('span', 'cta', 'Continuar');
+      ir.append(icono(TRAZO_FLECHA));
+      seguir.append(anillo, cuerpo, ir);
+      seguir.addEventListener('click', () => entrar(a.lista, a.llave));
+      const borrar = crear('button', 'lobby-borrar');
+      borrar.type = 'button';
+      borrar.append(icono(TRAZO_PAPELERA));
+      borrar.title = 'Borrar este avance';
+      borrar.setAttribute('aria-label', `Borrar el avance de ${a.nombre}`);
+      borrar.addEventListener('click', () => {
+        if (!window.confirm(`¿Borrar el avance de ${a.nombre} (${nombreLista(a.lista)})? No se puede deshacer.`)) return;
+        try { localStorage.removeItem(a.llave); } catch { /* no se pudo borrar */ }
+        mostrarInicio().then(() => document.querySelector('.opcion-lista').focus());
+      });
+      item.append(seguir, borrar);
+      return item;
+    }));
+  }
+
+  function irAlInicio() {
+    if (Lector.estado().etapa === 'listo' && !window.confirm('Se cerrará el informe abierto. Tu avance queda guardado. ¿Ir al inicio?')) return;
+    sesion.poner(CLAVE_CONFIRMADA, null);
+    sesion.poner(CLAVE_CONTINUAR, null);
+    window.location.reload();
   }
 
   /** Si el informe parece de otra lista, lo dice y ofrece cambiar. */
@@ -835,7 +920,7 @@
     const actual = nombreLista(fichaElegida);
     if (window.confirm(`Este informe parece de la lista «${otra}», pero estás revisando con «${actual}».\n\n¿Cambiar a «${otra}»? Después vuelve a elegir el mismo informe.`)) {
       try { sessionStorage.setItem(CLAVE_REABRIR, '1'); } catch { /* solo es un aviso */ }
-      cambiarLista(probable, { sinPreguntar: true });
+      entrar(probable, null);
     } else {
       avisar(`Ojo: este informe parece de la lista «${otra}» y estás usando «${actual}».`, true);
     }
@@ -853,14 +938,14 @@
   function abrirInforme(archivo) {
     if (!listaConfirmada()) {
       $('archivo').value = '';
-      pintarEleccionDeLista();
-      avisar('Primero elige con qué lista vas a revisar: Ciudad y Bahía, Arraiján o Mensual.', true);
+      mostrarInicio();
       return;
     }
     $('etiqueta-archivo').textContent = 'Cambiar informe';
     for (const boton of ACCIONES_DE_AVANCE) $(boton).disabled = false;
     nombreArchivo = archivo.name;
     clave = `${PREFIJO}:${archivo.name}:${archivo.size}`;
+    sesion.poner(CLAVE_CONTINUAR, clave);
     ficha = recuperar();
     const recuperadas = contarHechas(ficha);
     avisoRecuperado = recuperadas ? `Se recuperó tu avance: ${recuperadas} de ${TOTAL} revisados. ` : '';
@@ -869,7 +954,7 @@
     ultimoAnexo = null;
     Mosaico.cerrar();
     $('volver-mosaico').hidden = true;
-    $('hoja').inert = false;
+    bloquearHoja(false);
     $('controles').inert = false;
     ponerNombre(archivo.name);
     $('vacio').hidden = true;
@@ -968,10 +1053,10 @@
     // Un clic fuera del menú lo cierra, también sobre la hoja inactiva o una opción deshabilitada.
     document.addEventListener('pointerdown', (e) => { if ($('mas').open && !e.target.closest('.menu-mas button:enabled, #mas > summary')) $('mas').open = false; });
     $('hoja').parentElement.addEventListener('pointerdown', (e) => {
-      // La hoja inerte no recibe el clic: llega al contenedor, así que se mira la posición.
+      // El contenido inerte no recibe el clic: llega a la hoja o al contenedor, así que se mira la posición.
       const r = $('hoja').getBoundingClientRect();
       const sobreHoja = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
-      if ($('hoja').inert && sobreHoja) avisar('Primero elige el informe en PDF; después podrás marcar la ficha.', true);
+      if (hojaBloqueada && sobreHoja) avisar('Primero elige el informe en PDF; después podrás marcar la ficha.', true);
     });
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && $('mas').open) { $('mas').open = false; $('mas').querySelector('summary').focus(); } });
     $('guardar-copia').addEventListener('click', guardarCopia);
@@ -1062,20 +1147,16 @@
   for (const id of ['cab-semestral', 'cierre-semestral']) $(id).hidden = mensual;
   for (const id of ['cab-mensual', 'cierre-mensual']) $(id).hidden = !mensual;
   $('titulo-lista').textContent = catalogo.encabezado.titulo;
-  $('tipo-ficha').value = fichaElegida;
-  $('tipo-ficha').addEventListener('change', (e) => {
-    if (!cambiarLista(e.target.value)) e.target.value = fichaElegida;
-  });
-  for (const boton of document.querySelectorAll('.opcion-lista')) {
-    boton.addEventListener('click', () => {
-      if (boton.dataset.lista === fichaElegida) confirmarLista();
-      else cambiarLista(boton.dataset.lista);
-    });
-  }
-  pintarEleccionDeLista();
+  $('ir-inicio').title = `Volver al inicio. Lista actual: ${nombreLista(fichaElegida)}`;
+  $('app').dataset.lista = fichaElegida;
+  $('chip-lista').textContent = nombreLista(fichaElegida).replace('Semestral · ', '');
+  $('ir-inicio').addEventListener('click', irAlInicio);
+  for (const boton of document.querySelectorAll('.opcion-lista')) boton.addEventListener('click', () => entrar(boton.dataset.lista, null));
   construirFicha();
+  bloquearHoja(true);
   eventos();
-  mostrarAvanceAlIniciar();
+  if (listaConfirmada()) entrar(fichaElegida, sesion.leer(CLAVE_CONTINUAR));
+  else await mostrarInicio();
   pintarFicha();
   try {
     if (sessionStorage.getItem(CLAVE_REABRIR) === '1') {
